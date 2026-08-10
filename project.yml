@@ -30,6 +30,32 @@ targets:
         CFBundleName: "PDF One"
         ITSAppUsesNonExemptEncryption: false
         NSCameraUsageDescription: "書類をスキャンしてPDFを作成するためにカメラを使用します。"
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: "PDF Document"
+            CFBundleTypeRole: "Viewer"
+            LSHandlerRank: "Alternate"
+            LSItemContentTypes:
+              - "com.adobe.pdf"
+          - CFBundleTypeName: "Word Document"
+            CFBundleTypeRole: "Viewer"
+            LSHandlerRank: "Alternate"
+            LSItemContentTypes:
+              - "org.openxmlformats.wordprocessingml.document"
+              - "com.microsoft.word.doc"
+          - CFBundleTypeName: "Excel Spreadsheet"
+            CFBundleTypeRole: "Viewer"
+            LSHandlerRank: "Alternate"
+            LSItemContentTypes:
+              - "org.openxmlformats.spreadsheetml.sheet"
+              - "com.microsoft.excel.xls"
+          - CFBundleTypeName: "PowerPoint Presentation"
+            CFBundleTypeRole: "Viewer"
+            LSHandlerRank: "Alternate"
+            LSItemContentTypes:
+              - "org.openxmlformats.presentationml.presentation"
+              - "com.microsoft.powerpoint.ppt"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.pdfone.PDFOne
@@ -63,3 +89,4 @@ schemes:
         - PDF_OneTests
     run:
       config: Debug
+      storeKitConfiguration: Subscriptions.storekit
