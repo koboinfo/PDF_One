@@ -22,7 +22,10 @@ struct OCRView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "テキストを認識中…")
+                NeumorphicProcessingCard(
+                    message: "テキストを認識中…\(Int(viewModel.progress * 100))%",
+                    progress: viewModel.progress
+                )
             }
         }
         .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.pdf]) { result in

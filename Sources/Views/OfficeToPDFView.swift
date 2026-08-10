@@ -24,7 +24,10 @@ struct OfficeToPDFView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "PDFに変換中…\(Int(viewModel.progress * 100))%")
+                NeumorphicProcessingCard(
+                    message: "PDFに変換中…\(Int(viewModel.progress * 100))%",
+                    progress: viewModel.progress
+                )
             }
         }
         .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: officeContentTypes) { result in

@@ -21,7 +21,8 @@ struct OfficeConvertView: View {
         .overlay {
             if viewModel.isProcessing {
                 NeumorphicProcessingCard(
-                    message: "\(viewModel.selectedFormat.label)に変換中…\(Int(viewModel.progress * 100))%"
+                    message: "\(viewModel.selectedFormat.label)に変換中…\(Int(viewModel.progress * 100))%",
+                    progress: viewModel.progress
                 )
             }
         }

@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 
 @Observable
+@MainActor
 final class OCRViewModel {
 
     var selectedURL: URL? {
@@ -14,6 +15,7 @@ final class OCRViewModel {
 
     var extractedText: String = ""
     var isProcessing: Bool = false
+    var progress: Double = 0
     var errorMessage: String?
     var savedTextFileURL: URL?
 
@@ -34,12 +36,17 @@ final class OCRViewModel {
         }
 
         isProcessing = true
+        progress = 0
         errorMessage = nil
         extractedText = ""
         savedTextFileURL = nil
 
         do {
-            let text = try await ocrService.extractText(from: selectedURL)
+            let text = try await ocrService.extractText(from: selectedURL) { [weak self] value in
+                Task { @MainActor in
+                    self?.progress = value
+                }
+            }
             extractedText = text
             if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 errorMessage = "テキストを検出できませんでした。"

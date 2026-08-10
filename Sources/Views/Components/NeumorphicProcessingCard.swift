@@ -3,6 +3,7 @@ import SwiftUI
 /// ネオモーフィズム風の柔らかい二重シャドウカードで処理中インジケーターを表示する。BaseToolViewベースの各画面で共通利用する。
 struct NeumorphicProcessingCard: View {
     let message: String
+    var progress: Double?
 
     var body: some View {
         ZStack {
@@ -10,9 +11,16 @@ struct NeumorphicProcessingCard: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 18) {
-                ProgressView()
-                    .controlSize(.large)
-                    .tint(.primary)
+                if let progress {
+                    ProgressView(value: progress)
+                        .progressViewStyle(.circular)
+                        .controlSize(.large)
+                        .tint(.primary)
+                } else {
+                    ProgressView()
+                        .controlSize(.large)
+                        .tint(.primary)
+                }
 
                 Text(message)
                     .font(.subheadline.weight(.medium))

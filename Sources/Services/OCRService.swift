@@ -6,17 +6,47 @@ import Vision
 enum OCRServiceError: Error {
     case invalidInput
     case recognitionFailed
+    case passwordProtectedFile
+    case fileTooLarge(maxBytes: Int64)
+}
+
+extension OCRServiceError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .invalidInput:
+            return "PDFファイルを読み込めませんでした。ファイルが破損しているか、対応していない形式の可能性があります。"
+        case .recognitionFailed:
+            return "文字認識に失敗しました。"
+        case .passwordProtectedFile:
+            return "パスワード保護されたPDFです。「パスワード設定」機能で保護を解除してからお試しください。"
+        case .fileTooLarge(let maxBytes):
+            let maxMB = maxBytes / 1_000_000
+            return "ファイルサイズが大きすぎます（上限\(maxMB)MB）。ファイルを分割するか圧縮してからお試しください。"
+        }
+    }
 }
 
 protocol OCRServiceProtocol {
-    func extractText(from pdfURL: URL) async throws -> String
+    func extractText(from pdfURL: URL, onProgress: (@Sendable (Double) -> Void)?) async throws -> String
 }
 
-final class OCRService: OCRServiceProtocol {
+/// Visionによるページ画像の文字認識はCPU負荷が高いため、actorとしてメインスレッド外で実行しUIフリーズを防ぐ。
+actor OCRService: OCRServiceProtocol {
 
-    func extractText(from pdfURL: URL) async throws -> String {
+    static let maxInputFileSizeBytes: Int64 = 100_000_000
+
+    func extractText(from pdfURL: URL, onProgress: (@Sendable (Double) -> Void)? = nil) async throws -> String {
+        if let fileSize = try? FileManager.default.attributesOfItem(atPath: pdfURL.path)[.size] as? Int64,
+           fileSize > Self.maxInputFileSizeBytes {
+            throw OCRServiceError.fileTooLarge(maxBytes: Self.maxInputFileSizeBytes)
+        }
+
         guard let document = PDFDocument(url: pdfURL), document.pageCount > 0 else {
             throw OCRServiceError.invalidInput
+        }
+
+        guard !document.isLocked else {
+            throw OCRServiceError.passwordProtectedFile
         }
 
         var recognizedPages: [String] = []
@@ -27,6 +57,7 @@ final class OCRService: OCRServiceProtocol {
             }
             let pageText = try await recognizeText(in: cgImage)
             recognizedPages.append(pageText)
+            onProgress?(Double(pageIndex + 1) / Double(document.pageCount))
         }
 
         return recognizedPages.joined(separator: "\n\n")
