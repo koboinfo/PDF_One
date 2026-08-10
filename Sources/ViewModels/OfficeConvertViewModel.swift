@@ -33,11 +33,11 @@ final class OfficeConvertViewModel {
         progress = 0
         errorMessage = nil
 
-        let destinationURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-            .appendingPathExtension(selectedFormat.fileExtension)
-
         do {
+            let destinationURL = try SavedFileStore.directory(for: .office)
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension(selectedFormat.fileExtension)
+
             outputURL = try await pdfService.convertToOffice(
                 inputURL: selectedURL,
                 format: selectedFormat,

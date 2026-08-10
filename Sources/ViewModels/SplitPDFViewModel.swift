@@ -40,10 +40,9 @@ final class SplitPDFViewModel {
         errorMessage = nil
         outputURLs = []
 
-        let destinationDirectory = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-
         do {
+            let destinationDirectory = try SavedFileStore.directory()
+                .appendingPathComponent(UUID().uuidString, isDirectory: true)
             try FileManager.default.createDirectory(at: destinationDirectory, withIntermediateDirectories: true)
             outputURLs = try await pdfService.splitPDF(
                 inputURL: sourceURL,

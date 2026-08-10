@@ -40,11 +40,11 @@ final class ProtectPDFViewModel {
         isProcessing = true
         errorMessage = nil
 
-        let destinationURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-            .appendingPathExtension("pdf")
-
         do {
+            let destinationURL = try SavedFileStore.directory()
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension("pdf")
+
             outputURL = try await pdfService.protectPDF(
                 inputURL: selectedURL,
                 outputURL: destinationURL,

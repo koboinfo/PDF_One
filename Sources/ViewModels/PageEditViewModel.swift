@@ -70,12 +70,12 @@ final class PageEditViewModel {
         errorMessage = nil
         outputURL = nil
 
-        let destinationURL = Self.makeTemporaryPDFURL()
         let pageEdits = pageItems.map {
             PDFPageEdit(sourcePageIndex: $0.originalIndex, rotationDelta: $0.rotation)
         }
 
         do {
+            let destinationURL = try Self.makeTemporaryPDFURL()
             outputURL = try await pdfService.generateEditedPDF(
                 inputURL: sourceURL,
                 pageEdits: pageEdits,
@@ -104,9 +104,8 @@ final class PageEditViewModel {
         errorMessage = nil
         outputURL = nil
 
-        let destinationURL = Self.makeTemporaryPDFURL()
-
         do {
+            let destinationURL = try Self.makeTemporaryPDFURL()
             outputURL = try await pdfService.extractPages(
                 inputURL: sourceURL,
                 pageIndices: selectedIndices,
@@ -135,8 +134,8 @@ final class PageEditViewModel {
         }
     }
 
-    private static func makeTemporaryPDFURL() -> URL {
-        FileManager.default.temporaryDirectory
+    private static func makeTemporaryPDFURL() throws -> URL {
+        try SavedFileStore.directory()
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("pdf")
     }

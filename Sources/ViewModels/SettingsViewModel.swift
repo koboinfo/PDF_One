@@ -10,7 +10,7 @@ final class SettingsViewModel {
     var toast: ToastData?
 
     private let fileManager: FileManager
-    private static let cacheFileExtensions: Set<String> = ["pdf", "jpg"]
+    private static let cacheFileExtensions: Set<String> = ["pdf", "jpg", "txt"]
 
     init(fileManager: FileManager = .default) {
         self.fileManager = fileManager
@@ -41,13 +41,8 @@ final class SettingsViewModel {
         isClearingCache = true
 
         let temporaryDirectory = fileManager.temporaryDirectory
-        if let contents = try? fileManager.contentsOfDirectory(
-            at: temporaryDirectory,
-            includingPropertiesForKeys: nil
-        ) {
-            for fileURL in contents where Self.cacheFileExtensions.contains(fileURL.pathExtension.lowercased()) {
-                try? fileManager.removeItem(at: fileURL)
-            }
+        for fileURL in Self.cacheFileURLs(in: temporaryDirectory, fileManager: fileManager) {
+            try? fileManager.removeItem(at: fileURL)
         }
 
         cacheSizeBytes = Self.cacheFilesSize(in: temporaryDirectory, fileManager: fileManager)
@@ -55,20 +50,24 @@ final class SettingsViewModel {
         toast = ToastData(style: .success, message: "キャッシュを削除しました")
     }
 
-    private static func cacheFilesSize(in directory: URL, fileManager: FileManager) -> Int64 {
-        guard let contents = try? fileManager.contentsOfDirectory(
+    /// `temporaryDirectory`配下をサブディレクトリも含めて再帰的に走査し、対象拡張子のファイルURLを返す。
+    /// スキャン画像やページ書き出しなど、ツールごとのUUIDサブディレクトリに置かれたキャッシュも捕捉するため。
+    private static func cacheFileURLs(in directory: URL, fileManager: FileManager) -> [URL] {
+        guard let enumerator = fileManager.enumerator(
             at: directory,
-            includingPropertiesForKeys: [.fileSizeKey],
+            includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey],
             options: [.skipsHiddenFiles]
         ) else {
-            return 0
+            return []
         }
 
-        return contents
-            .filter { cacheFileExtensions.contains($0.pathExtension.lowercased()) }
-            .reduce(Int64(0)) { total, fileURL in
-                let size = (try? fileURL.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
-                return total + Int64(size)
-            }
+        return enumerator.compactMap { $0 as? URL }.filter { cacheFileExtensions.contains($0.pathExtension.lowercased()) }
+    }
+
+    private static func cacheFilesSize(in directory: URL, fileManager: FileManager) -> Int64 {
+        cacheFileURLs(in: directory, fileManager: fileManager).reduce(Int64(0)) { total, fileURL in
+            let size = (try? fileURL.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
+            return total + Int64(size)
+        }
     }
 }

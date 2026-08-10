@@ -59,7 +59,7 @@ final class ImageToPDFViewModel {
                 localImageURLs.append(try await imageResolver.resolveLocalURL(for: image))
             }
 
-            let destinationURL = FileManager.default.temporaryDirectory
+            let destinationURL = try SavedFileStore.directory()
                 .appendingPathComponent(UUID().uuidString)
                 .appendingPathExtension("pdf")
 

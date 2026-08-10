@@ -35,11 +35,11 @@ final class WatermarkViewModel {
         isProcessing = true
         errorMessage = nil
 
-        let destinationURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-            .appendingPathExtension("pdf")
-
         do {
+            let destinationURL = try SavedFileStore.directory()
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension("pdf")
+
             outputURL = try await pdfService.addWatermark(
                 inputURL: selectedURL,
                 text: watermarkText,

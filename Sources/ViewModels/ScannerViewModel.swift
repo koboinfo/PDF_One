@@ -28,6 +28,7 @@ final class ScannerViewModel {
 
         let workDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: workDirectory) }
 
         do {
             try FileManager.default.createDirectory(at: workDirectory, withIntermediateDirectories: true)
@@ -41,7 +42,7 @@ final class ScannerViewModel {
                 imageURLs.append(imageURL)
             }
 
-            let destinationURL = FileManager.default.temporaryDirectory
+            let destinationURL = try SavedFileStore.directory()
                 .appendingPathComponent(UUID().uuidString)
                 .appendingPathExtension("pdf")
 
