@@ -18,6 +18,9 @@ struct PageEditGridView: View {
                         onDelete: { viewModel.deletePage(id: item.id) },
                         onToggleSelect: { viewModel.toggleSelection(id: item.id) }
                     )
+                    .opacity(draggingItemID == item.id ? 0.4 : 1)
+                    .scaleEffect(draggingItemID == item.id ? 0.92 : 1)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: draggingItemID)
                     .onDrag {
                         draggingItemID = item.id
                         return NSItemProvider(object: item.id.uuidString as NSString)
@@ -32,6 +35,7 @@ struct PageEditGridView: View {
                     )
                 }
             }
+            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: viewModel.pageItems.map(\.id))
             .padding()
         }
     }
