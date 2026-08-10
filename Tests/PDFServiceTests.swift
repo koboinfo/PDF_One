@@ -382,6 +382,36 @@ final class PDFServiceTests: XCTestCase {
         }
     }
 
+    func testConvertToOfficeThrowsPasswordProtectedFileForLockedPDF() async throws {
+        let sourcePDF = try makePDFFile(pageCount: 1, name: "source.pdf")
+        let protectedURL = workDirectory.appendingPathComponent("protected.pdf")
+        _ = try await sut.protectPDF(inputURL: sourcePDF, outputURL: protectedURL, password: "s3cret")
+        let outputURL = workDirectory.appendingPathComponent("converted.docx")
+
+        await assertThrowsAsync(
+            try await sut.convertToOffice(inputURL: protectedURL, format: .word, outputURL: outputURL)
+        ) { error in
+            guard case PDFServiceError.passwordProtectedFile = error else {
+                XCTFail("Expected passwordProtectedFile, got \(error)")
+                return
+            }
+        }
+    }
+
+    func testConvertToOfficeThrowsFileTooLargeForOversizedInput() async throws {
+        let oversizedURL = try makeOversizedFile(name: "huge.pdf")
+        let outputURL = workDirectory.appendingPathComponent("converted.docx")
+
+        await assertThrowsAsync(
+            try await sut.convertToOffice(inputURL: oversizedURL, format: .word, outputURL: outputURL)
+        ) { error in
+            guard case PDFServiceError.fileTooLarge = error else {
+                XCTFail("Expected fileTooLarge, got \(error)")
+                return
+            }
+        }
+    }
+
     // MARK: - convertOfficeToPDF
 
     func testConvertOfficeToPDFConvertsWordDocument() async throws {
@@ -414,6 +444,20 @@ final class PDFServiceTests: XCTestCase {
         }
     }
 
+    func testConvertOfficeToPDFThrowsFileTooLargeForOversizedInput() async throws {
+        let oversizedURL = try makeOversizedFile(name: "huge.docx")
+        let outputURL = workDirectory.appendingPathComponent("converted.pdf")
+
+        await assertThrowsAsync(
+            try await sut.convertOfficeToPDF(inputURL: oversizedURL, format: .word, outputURL: outputURL)
+        ) { error in
+            guard case PDFServiceError.fileTooLarge = error else {
+                XCTFail("Expected fileTooLarge, got \(error)")
+                return
+            }
+        }
+    }
+
     // MARK: - Helpers
 
     private func makePDFDocument(pageCount: Int) throws -> PDFDocument {
@@ -435,6 +479,17 @@ final class PDFServiceTests: XCTestCase {
         }
         let url = workDirectory.appendingPathComponent(name)
         try data.write(to: url)
+        return url
+    }
+
+    /// `PDFService.maxInputFileSizeBytes`を超えるサイズのスパースファイルを作成する。
+    /// 実データを書き込まず`truncate`でサイズだけを設定するため、実ディスク消費・実行時間を抑えられる。
+    private func makeOversizedFile(name: String) throws -> URL {
+        let url = workDirectory.appendingPathComponent(name)
+        FileManager.default.createFile(atPath: url.path, contents: nil)
+        let handle = try FileHandle(forWritingTo: url)
+        try handle.truncate(atOffset: UInt64(PDFService.maxInputFileSizeBytes) + 1)
+        try handle.close()
         return url
     }
 
