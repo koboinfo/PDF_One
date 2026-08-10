@@ -75,6 +75,10 @@
 		FDBA7FD9C34E34A9B38CFCA8 /* ToolItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925B5D5D5A4AF9221680A009 /* ToolItem.swift */; };
 		FE786915103F20AB0E004479 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BB9BF772512D86253756900 /* PrimaryButton.swift */; };
 		FF0D1F8D4F004024AA4BA5DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5246EF2C1F0A8DB9D56B9D40 /* Assets.xcassets */; };
+		59A7386B313E4460BA352769 /* OOXMLZipWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69ABEB2FE0904637A01E55F8 /* OOXMLZipWriter.swift */; };
+		8A3F2522703F4AF7ADA6E47E /* OfficeDocumentBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73BF0BB8E575482E831B00EE /* OfficeDocumentBuilder.swift */; };
+		8C0647952E0E4048A6BC339E /* OfficeToPDFViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE47315B4B5C462CBD307165 /* OfficeToPDFViewModel.swift */; };
+		E60B899A24064792995DD8E7 /* OfficeToPDFView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8463A5B345E0407FAB3245DE /* OfficeToPDFView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -159,12 +163,17 @@
 		F3687579223530D5B53EF6C3 /* WatermarkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkViewModel.swift; sourceTree = "<group>"; };
 		F42F12C1438A59945CC167D7 /* AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconView.swift; sourceTree = "<group>"; };
 		F437E3000C7993A768B6F9FD /* PDF_OneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDF_OneApp.swift; sourceTree = "<group>"; };
+		69ABEB2FE0904637A01E55F8 /* OOXMLZipWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OOXMLZipWriter.swift; sourceTree = "<group>"; };
+		73BF0BB8E575482E831B00EE /* OfficeDocumentBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfficeDocumentBuilder.swift; sourceTree = "<group>"; };
+		EE47315B4B5C462CBD307165 /* OfficeToPDFViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfficeToPDFViewModel.swift; sourceTree = "<group>"; };
+		8463A5B345E0407FAB3245DE /* OfficeToPDFView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfficeToPDFView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		1151A3E9471E5F5A51410B48 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				8463A5B345E0407FAB3245DE /* OfficeToPDFView.swift */,
 				6F867F6001A41F08698A257E /* CompressView.swift */,
 				993AF16FC8C983D03B4D9CED /* FilesView.swift */,
 				777D0F7F547831410ABEADF2 /* HomeView.swift */,
@@ -209,6 +218,8 @@
 		28682E47E5238C6A6E1CB5A7 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				73BF0BB8E575482E831B00EE /* OfficeDocumentBuilder.swift */,
+				69ABEB2FE0904637A01E55F8 /* OOXMLZipWriter.swift */,
 				5DF289EEDCF711C187576590 /* ImageSourceResolver.swift */,
 				4316238C97139CCFA1922570 /* OCRService.swift */,
 				AF2DEF43FB404417B906BE18 /* PDFService.swift */,
@@ -229,6 +240,7 @@
 		59D540FB1F08F078DC68CFEC /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				EE47315B4B5C462CBD307165 /* OfficeToPDFViewModel.swift */,
 				2ED06B4AC41F98BCFEDDC30A /* CompressViewModel.swift */,
 				B40C4F39042AF9DB7CDE2C8B /* ImageToPDFViewModel.swift */,
 				268D66A47CF301CE217BABF2 /* MergeViewModel.swift */,
@@ -411,6 +423,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E60B899A24064792995DD8E7 /* OfficeToPDFView.swift in Sources */,
+				8C0647952E0E4048A6BC339E /* OfficeToPDFViewModel.swift in Sources */,
+				8A3F2522703F4AF7ADA6E47E /* OfficeDocumentBuilder.swift in Sources */,
+				59A7386B313E4460BA352769 /* OOXMLZipWriter.swift in Sources */,
 				675F31E6826EBCFA26EA4FA8 /* ActivityView.swift in Sources */,
 				9EFC9FBC2C0454C135B07DBB /* AppBackground.swift in Sources */,
 				E7CF5157EB6747814BF5B239 /* AppIconView.swift in Sources */,
