@@ -3,6 +3,7 @@ import UIKit
 import VisionKit
 
 @Observable
+@MainActor
 final class ScannerViewModel {
 
     var isProcessing: Bool = false

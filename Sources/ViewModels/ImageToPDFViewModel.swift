@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class ImageToPDFViewModel {
 
     /// ローカル選択画像・Cloudinary等のリモートURL画像を区別なく保持する。

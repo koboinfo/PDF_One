@@ -12,6 +12,7 @@ struct PDFPageEditItem: Identifiable {
 }
 
 @Observable
+@MainActor
 final class PageEditViewModel {
 
     var sourceURL: URL? {

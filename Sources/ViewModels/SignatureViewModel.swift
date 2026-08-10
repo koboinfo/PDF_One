@@ -3,6 +3,7 @@ import PDFKit
 import UIKit
 
 @Observable
+@MainActor
 final class SignatureViewModel {
 
     static let previewWidth: CGFloat = 320

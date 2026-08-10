@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class ProtectPDFViewModel {
 
     var selectedURL: URL? {

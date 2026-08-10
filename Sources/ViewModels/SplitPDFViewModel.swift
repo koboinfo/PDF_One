@@ -2,6 +2,7 @@ import Foundation
 import PDFKit
 
 @Observable
+@MainActor
 final class SplitPDFViewModel {
 
     var sourceURL: URL? {

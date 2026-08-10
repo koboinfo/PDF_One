@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class WatermarkViewModel {
 
     var selectedURL: URL? {

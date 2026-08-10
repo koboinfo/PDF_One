@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class MergeViewModel {
 
     var selectedURLs: [URL] = []

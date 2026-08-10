@@ -8,6 +8,7 @@ struct PDFImagePage: Identifiable {
 }
 
 @Observable
+@MainActor
 final class PDFToJPGViewModel {
 
     var sourceURL: URL? {
