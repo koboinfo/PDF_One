@@ -1,0 +1,86 @@
+import Foundation
+
+@Observable
+final class CompressViewModel {
+
+    var selectedURL: URL? {
+        didSet { outputURL = nil }
+    }
+    var compressionQuality: PDFCompressionQuality = .medium
+    var isProcessing: Bool = false
+    var outputURL: URL?
+    var errorMessage: String?
+
+    private let pdfService: PDFServiceProtocol
+
+    init(pdfService: PDFServiceProtocol = PDFService()) {
+        self.pdfService = pdfService
+    }
+
+    var originalFileSizeBytes: Int64? {
+        selectedURL.flatMap(Self.fileSize(at:))
+    }
+
+    var compressedFileSizeBytes: Int64? {
+        outputURL.flatMap(Self.fileSize(at:))
+    }
+
+    var reductionPercentText: String? {
+        guard let originalFileSizeBytes, let compressedFileSizeBytes, originalFileSizeBytes > 0 else {
+            return nil
+        }
+        let reduction = 1 - Double(compressedFileSizeBytes) / Double(originalFileSizeBytes)
+        return String(format: "%.0f%%削減", max(0, reduction) * 100)
+    }
+
+    func compressPDF() async {
+        guard let selectedURL else {
+            errorMessage = "圧縮するPDFファイルを選択してください。"
+            return
+        }
+
+        isProcessing = true
+        errorMessage = nil
+
+        let destinationURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("pdf")
+
+        do {
+            let compressedURL = try await pdfService.compressPDF(
+                inputURL: selectedURL,
+                outputURL: destinationURL,
+                quality: compressionQuality
+            )
+            outputURL = compressedURL
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
+        isProcessing = false
+    }
+
+    static func formattedFileSize(_ bytes: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+
+    private static func fileSize(at url: URL) -> Int64? {
+        guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path) else {
+            return nil
+        }
+        return attributes[.size] as? Int64
+    }
+}
+
+extension PDFCompressionQuality {
+    static let selectableQualities: [PDFCompressionQuality] = [.low, .medium, .high]
+
+    var label: String {
+        switch self {
+        case .low: return "低（サイズ優先）"
+        case .medium: return "中"
+        case .high: return "高（画質優先）"
+        case .custom: return "カスタム"
+        }
+    }
+}

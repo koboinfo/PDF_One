@@ -1,0 +1,10 @@
+.build/
+DerivedData/
+*.xcodeproj/project.xcworkspace/
+*.xcworkspace/
+*.xcassets/
+*.png
+*.jpg
+*.svg
+*.resolved
+Podfile.lock

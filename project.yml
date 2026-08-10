@@ -1,0 +1,65 @@
+name: PDF_One
+
+options:
+  bundleIdPrefix: com.pdfone
+  deploymentTarget:
+    iOS: "17.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    PRODUCT_NAME: "$(TARGET_NAME)"
+  configs:
+    Debug:
+      ENABLE_TESTABILITY: true
+
+targets:
+  PDF_One:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources
+    info:
+      path: Sources/App/Info.plist
+      properties:
+        UILaunchScreen: {}
+        CFBundleDisplayName: "PDF One"
+        CFBundleName: "PDF One"
+        ITSAppUsesNonExemptEncryption: false
+        NSCameraUsageDescription: "書類をスキャンしてPDFを作成するためにカメラを使用します。"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pdfone.PDFOne
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: false
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  PDF_OneTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests
+    dependencies:
+      - target: PDF_One
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pdfone.PDFOneTests
+        GENERATE_INFOPLIST_FILE: true
+        BUNDLE_LOADER: "$(TEST_HOST)"
+    testTargetHost: PDF_One
+
+schemes:
+  PDF_One:
+    build:
+      targets:
+        PDF_One: all
+        PDF_OneTests: [test]
+    test:
+      targets:
+        - PDF_OneTests
+    run:
+      config: Debug
