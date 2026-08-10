@@ -16,6 +16,44 @@ enum PDFServiceError: Error {
     case watermarkFailed
     case officeConversionFailed
     case unsupportedOfficeFormat
+    case passwordProtectedFile
+    case fileTooLarge(maxBytes: Int64)
+}
+
+extension PDFServiceError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .invalidInput:
+            return "ファイルを読み込めませんでした。ファイルが破損しているか、対応していない形式の可能性があります。"
+        case .emptyDocumentSet:
+            return "処理対象のページがありません。"
+        case .fileWriteFailed:
+            return "ファイルの書き出しに失敗しました。空き容量をご確認ください。"
+        case .unsupportedImageFormat:
+            return "対応していない画像形式が含まれています。"
+        case .compressionFailed:
+            return "PDFの圧縮に失敗しました。"
+        case .imageExportFailed:
+            return "画像の書き出しに失敗しました。"
+        case .invalidPageRange:
+            return "指定されたページ範囲が正しくありません。"
+        case .protectionFailed:
+            return "パスワードの設定に失敗しました。"
+        case .incorrectPassword:
+            return "パスワードが正しくありません。"
+        case .watermarkFailed:
+            return "透かしの追加に失敗しました。"
+        case .officeConversionFailed:
+            return "ファイルの変換に失敗しました。"
+        case .unsupportedOfficeFormat:
+            return "この形式（Excel・PowerPoint）からPDFへの変換は現在対応していません。"
+        case .passwordProtectedFile:
+            return "パスワード保護されたPDFです。「パスワード設定」機能で保護を解除してから変換してください。"
+        case .fileTooLarge(let maxBytes):
+            let maxMB = maxBytes / 1_000_000
+            return "ファイルサイズが大きすぎます（上限\(maxMB)MB）。ファイルを分割するか圧縮してからお試しください。"
+        }
+    }
 }
 
 enum OfficeFormat: String, CaseIterable, Hashable {
@@ -80,7 +118,22 @@ protocol PDFServiceProtocol {
     func convertOfficeToPDF(inputURL: URL, format: OfficeFormat, outputURL: URL) async throws -> URL
 }
 
-final class PDFService: PDFServiceProtocol {
+/// PDFKit/CoreTextによるレンダリングはCPU負荷が高いため、actorとしてメインスレッド外で実行しUIフリーズを防ぐ。
+/// 保持するミュータブルな状態はないため、同期的なページ操作ヘルパーは`nonisolated`にして呼び出し側での不要な`await`を避ける。
+actor PDFService: PDFServiceProtocol {
+
+    /// 変換対象として受け付ける入力ファイルサイズの上限。超過分はメモリを圧迫し得るため事前に弾く。
+    static let maxInputFileSizeBytes: Int64 = 100_000_000
+
+    /// ファイルサイズが上限を超えている場合に弾く。属性が取得できない場合は後続処理のエラーハンドリングに委ねる。
+    private static func checkFileSize(of url: URL) throws {
+        guard let fileSize = try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64 else {
+            return
+        }
+        guard fileSize <= maxInputFileSizeBytes else {
+            throw PDFServiceError.fileTooLarge(maxBytes: maxInputFileSizeBytes)
+        }
+    }
 
     func mergePDFs(inputURLs: [URL], outputURL: URL) async throws -> URL {
         guard !inputURLs.isEmpty else {
@@ -191,7 +244,7 @@ final class PDFService: PDFServiceProtocol {
         return outputURL
     }
 
-    func inspect(url: URL) throws -> PDFDocumentInfo {
+    nonisolated func inspect(url: URL) throws -> PDFDocumentInfo {
         fatalError("not implemented")
     }
 
@@ -378,8 +431,14 @@ final class PDFService: PDFServiceProtocol {
     /// PDFの各ページからテキストを抽出し、規格上有効なdocx/xlsx/pptxパッケージとして書き出す。
     /// 表構造（Excel）やページレイアウト画像（PowerPoint）の再現は`PDFTableExtractor`等の専用ロジックが担う。
     func convertToOffice(inputURL: URL, format: OfficeFormat, outputURL: URL) async throws -> URL {
+        try Self.checkFileSize(of: inputURL)
+
         guard let document = PDFDocument(url: inputURL), document.pageCount > 0 else {
             throw PDFServiceError.invalidInput
+        }
+
+        guard !document.isLocked else {
+            throw PDFServiceError.passwordProtectedFile
         }
 
         let pageTexts = (0..<document.pageCount).map { document.page(at: $0)?.string ?? "" }
@@ -405,28 +464,35 @@ final class PDFService: PDFServiceProtocol {
         return outputURL
     }
 
-    /// Word(.docx)は`NSAttributedString`でOOXMLを読み込みCoreTextでページ分割して描画する。
-    /// Excel/PowerPointの読み込みにはiOS標準APIが存在しないため、専用パーサー実装まで非対応。
+    /// Word(.docx)は自前のZIP/XMLパーサー（`OfficeDocumentReader`）で段落テキストを取り出し、CoreTextでページ分割して描画する。
+    /// iOSには`NSAttributedString`でOOXMLを直接読み込む公開APIが存在しない（macOS/AppKit限定）ため、この方式を採る。
+    /// Excel/PowerPointの読み込みは専用パーサー実装まで非対応。
     func convertOfficeToPDF(inputURL: URL, format: OfficeFormat, outputURL: URL) async throws -> URL {
+        try Self.checkFileSize(of: inputURL)
+
         guard format == .word else {
             throw PDFServiceError.unsupportedOfficeFormat
         }
 
-        let attributedString: NSAttributedString
+        let docxData: Data
         do {
-            attributedString = try NSAttributedString(
-                url: inputURL,
-                options: [.documentType: NSAttributedString.DocumentType.officeOpenXML],
-                documentAttributes: nil
-            )
+            docxData = try Data(contentsOf: inputURL)
+        } catch {
+            throw PDFServiceError.invalidInput
+        }
+
+        let paragraphs: [String]
+        do {
+            paragraphs = try OfficeDocumentReader.readDocxParagraphs(from: docxData)
         } catch {
             throw PDFServiceError.officeConversionFailed
         }
 
-        guard !attributedString.string.isEmpty else {
+        guard paragraphs.contains(where: { !$0.isEmpty }) else {
             throw PDFServiceError.emptyDocumentSet
         }
 
+        let attributedString = Self.makeAttributedString(fromParagraphs: paragraphs)
         let pdfData = Self.renderPDF(from: attributedString)
         guard !pdfData.isEmpty else {
             throw PDFServiceError.officeConversionFailed
@@ -439,6 +505,15 @@ final class PDFService: PDFServiceProtocol {
         }
 
         return outputURL
+    }
+
+    private static func makeAttributedString(fromParagraphs paragraphs: [String]) -> NSAttributedString {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.paragraphSpacing = 8
+        return NSAttributedString(
+            string: paragraphs.joined(separator: "\n"),
+            attributes: [.font: UIFont.systemFont(ofSize: 12), .paragraphStyle: paragraphStyle]
+        )
     }
 
     /// US Letterサイズ・上下左右余白48ptでCoreTextのフレームセッターを使いページ分割しながら描画する。
@@ -480,7 +555,8 @@ final class PDFService: PDFServiceProtocol {
 
     /// `newOrder` に列挙されたページ番号（0始まり）の順序・部分集合で構成された新しい `PDFDocument` を返す。
     /// 除外されたページは削除、重複や並び替えはそのまま反映される。
-    func reorderPages(in document: PDFDocument, to newOrder: [Int]) -> PDFDocument {
+    /// ページ配列の操作のみで重い描画を伴わないため`nonisolated`とし、呼び出し側での`await`を不要にする。
+    nonisolated func reorderPages(in document: PDFDocument, to newOrder: [Int]) -> PDFDocument {
         let reordered = PDFDocument()
         var insertIndex = 0
         for sourceIndex in newOrder {
@@ -495,14 +571,14 @@ final class PDFService: PDFServiceProtocol {
     }
 
     /// ページの現在の回転角に `degrees` を加算する（90度単位を想定）。
-    func rotatePage(_ page: PDFPage, byDegrees degrees: Int) {
+    nonisolated func rotatePage(_ page: PDFPage, byDegrees degrees: Int) {
         guard degrees != 0 else { return }
         let normalizedDelta = ((degrees % 360) + 360) % 360
         page.rotation = (page.rotation + normalizedDelta) % 360
     }
 
     /// 指定したページを `document` から削除する。
-    func deletePages(from document: PDFDocument, at indices: IndexSet) {
+    nonisolated func deletePages(from document: PDFDocument, at indices: IndexSet) {
         for index in indices.sorted(by: >) {
             guard index >= 0, index < document.pageCount else { continue }
             document.removePage(at: index)
