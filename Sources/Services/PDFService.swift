@@ -15,7 +15,6 @@ enum PDFServiceError: Error {
     case incorrectPassword
     case watermarkFailed
     case officeConversionFailed
-    case unsupportedOfficeFormat
     case passwordProtectedFile
     case fileTooLarge(maxBytes: Int64)
 }
@@ -45,8 +44,6 @@ extension PDFServiceError: LocalizedError {
             return "透かしの追加に失敗しました。"
         case .officeConversionFailed:
             return "ファイルの変換に失敗しました。"
-        case .unsupportedOfficeFormat:
-            return "この形式（Excel・PowerPoint）からPDFへの変換は現在対応していません。"
         case .passwordProtectedFile:
             return "パスワード保護されたPDFです。「パスワード設定」機能で保護を解除してから変換してください。"
         case .fileTooLarge(let maxBytes):
@@ -114,8 +111,8 @@ protocol PDFServiceProtocol {
     func protectPDF(inputURL: URL, outputURL: URL, password: String) async throws -> URL
     func unlockPDF(inputURL: URL, outputURL: URL, password: String) async throws -> URL
     func addWatermark(inputURL: URL, text: String, outputURL: URL) async throws -> URL
-    func convertToOffice(inputURL: URL, format: OfficeFormat, outputURL: URL) async throws -> URL
-    func convertOfficeToPDF(inputURL: URL, format: OfficeFormat, outputURL: URL) async throws -> URL
+    func convertToOffice(inputURL: URL, format: OfficeFormat, outputURL: URL, onProgress: (@Sendable (Double) -> Void)?) async throws -> URL
+    func convertOfficeToPDF(inputURL: URL, format: OfficeFormat, outputURL: URL, onProgress: (@Sendable (Double) -> Void)?) async throws -> URL
 }
 
 /// PDFKit/CoreTextによるレンダリングはCPU負荷が高いため、actorとしてメインスレッド外で実行しUIフリーズを防ぐ。
@@ -428,9 +425,17 @@ actor PDFService: PDFServiceProtocol {
         return outputURL
     }
 
-    /// PDFの各ページからテキストを抽出し、規格上有効なdocx/xlsx/pptxパッケージとして書き出す。
-    /// 表構造（Excel）やページレイアウト画像（PowerPoint）の再現は`PDFTableExtractor`等の専用ロジックが担う。
-    func convertToOffice(inputURL: URL, format: OfficeFormat, outputURL: URL) async throws -> URL {
+    /// PDFの各ページから内容を抽出し、規格上有効なdocx/xlsx/pptxパッケージとして書き出す。
+    /// Word/PowerPointは段落テキストの抽出、Excelは`extractTableRows`による表構造（行・列）の推定を行う。
+    /// `onProgress`はページ処理が1件完了するたびに`0`〜`1`の値で呼ばれる。
+    /// 各ページの処理を`autoreleasepool`で囲み、特にPowerPointの画像化で確保する一時ビットマップ・PNGデータを
+    /// ページ処理直後に解放してピーク時メモリを抑える。
+    func convertToOffice(
+        inputURL: URL,
+        format: OfficeFormat,
+        outputURL: URL,
+        onProgress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> URL {
         try Self.checkFileSize(of: inputURL)
 
         guard let document = PDFDocument(url: inputURL), document.pageCount > 0 else {
@@ -441,17 +446,49 @@ actor PDFService: PDFServiceProtocol {
             throw PDFServiceError.passwordProtectedFile
         }
 
-        let pageTexts = (0..<document.pageCount).map { document.page(at: $0)?.string ?? "" }
-
+        let pageCount = document.pageCount
         let packageData: Data
         switch format {
         case .word:
+            var pageTexts: [String] = []
+            pageTexts.reserveCapacity(pageCount)
+            for pageIndex in 0..<pageCount {
+                autoreleasepool {
+                    pageTexts.append(document.page(at: pageIndex)?.string ?? "")
+                }
+                onProgress?(Double(pageIndex + 1) / Double(pageCount))
+            }
             packageData = OfficeDocumentBuilder.makeDocx(pageTexts: pageTexts)
         case .excel:
-            let rows = pageTexts.flatMap { $0.components(separatedBy: .newlines) }.map { [$0] }
-            packageData = OfficeDocumentBuilder.makeXlsx(sheets: [rows])
+            var sheets: [[[String]]] = []
+            sheets.reserveCapacity(pageCount)
+            for pageIndex in 0..<pageCount {
+                autoreleasepool {
+                    sheets.append(document.page(at: pageIndex).map(Self.extractTableRows) ?? [])
+                }
+                onProgress?(Double(pageIndex + 1) / Double(pageCount))
+            }
+            packageData = OfficeDocumentBuilder.makeXlsx(sheets: sheets)
         case .powerPoint:
-            let slides = pageTexts.map { OfficeDocumentBuilder.SlideContent.text($0) }
+            var slides: [OfficeDocumentBuilder.SlideContent] = []
+            slides.reserveCapacity(pageCount)
+            for pageIndex in 0..<pageCount {
+                autoreleasepool {
+                    if let page = document.page(at: pageIndex),
+                       let image = renderPageImage(page),
+                       let pngData = image.pngData() {
+                        slides.append(.image(
+                            data: pngData,
+                            pixelWidth: Int(image.size.width * image.scale),
+                            pixelHeight: Int(image.size.height * image.scale)
+                        ))
+                    }
+                }
+                onProgress?(Double(pageIndex + 1) / Double(pageCount))
+            }
+            guard !slides.isEmpty else {
+                throw PDFServiceError.officeConversionFailed
+            }
             packageData = OfficeDocumentBuilder.makePptx(slides: slides)
         }
 
@@ -464,36 +501,44 @@ actor PDFService: PDFServiceProtocol {
         return outputURL
     }
 
-    /// Word(.docx)は自前のZIP/XMLパーサー（`OfficeDocumentReader`）で段落テキストを取り出し、CoreTextでページ分割して描画する。
-    /// iOSには`NSAttributedString`でOOXMLを直接読み込む公開APIが存在しない（macOS/AppKit限定）ため、この方式を採る。
-    /// Excel/PowerPointの読み込みは専用パーサー実装まで非対応。
-    func convertOfficeToPDF(inputURL: URL, format: OfficeFormat, outputURL: URL) async throws -> URL {
+    /// iOSには`NSAttributedString`でOOXMLを直接読み込む公開APIが存在しない（macOS/AppKit限定）ため、
+    /// docx/xlsx/pptxいずれも自前のZIP/XMLパーサー（`OfficeDocumentReader`系）で内容を取り出し、PDFとして再描画する。
+    /// `onProgress`は解析対象のページ/シート/スライド単位で`0`〜`1`の値を通知する。
+    func convertOfficeToPDF(
+        inputURL: URL,
+        format: OfficeFormat,
+        outputURL: URL,
+        onProgress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> URL {
         try Self.checkFileSize(of: inputURL)
 
-        guard format == .word else {
-            throw PDFServiceError.unsupportedOfficeFormat
-        }
-
-        let docxData: Data
+        let sourceData: Data
         do {
-            docxData = try Data(contentsOf: inputURL)
+            sourceData = try Data(contentsOf: inputURL)
         } catch {
             throw PDFServiceError.invalidInput
         }
 
-        let paragraphs: [String]
-        do {
-            paragraphs = try OfficeDocumentReader.readDocxParagraphs(from: docxData)
-        } catch {
-            throw PDFServiceError.officeConversionFailed
+        guard !Self.isEncryptedOfficeContainer(sourceData) else {
+            throw PDFServiceError.passwordProtectedFile
         }
 
-        guard paragraphs.contains(where: { !$0.isEmpty }) else {
-            throw PDFServiceError.emptyDocumentSet
+        let pdfData: Data
+        switch format {
+        case .word:
+            let paragraphs = try Self.readOffice { try OfficeDocumentReader.readDocxParagraphs(from: sourceData) }
+            guard paragraphs.contains(where: { !$0.isEmpty }) else {
+                throw PDFServiceError.emptyDocumentSet
+            }
+            pdfData = Self.renderPDF(from: Self.makeAttributedString(fromParagraphs: paragraphs), onProgress: onProgress)
+        case .excel:
+            let sheets = try Self.readOffice { try OfficeSpreadsheetReader.readSheets(from: sourceData) }
+            pdfData = Self.renderExcelPDF(sheets: sheets, onProgress: onProgress)
+        case .powerPoint:
+            let (slideSizeEMU, slides) = try Self.readOffice { try OfficePresentationReader.readSlides(from: sourceData) }
+            pdfData = Self.renderPptxPDF(slideSizeEMU: slideSizeEMU, slides: slides, onProgress: onProgress)
         }
 
-        let attributedString = Self.makeAttributedString(fromParagraphs: paragraphs)
-        let pdfData = Self.renderPDF(from: attributedString)
         guard !pdfData.isEmpty else {
             throw PDFServiceError.officeConversionFailed
         }
@@ -507,6 +552,189 @@ actor PDFService: PDFServiceProtocol {
         return outputURL
     }
 
+    private static func readOffice<T>(_ body: () throws -> T) throws -> T {
+        do {
+            return try body()
+        } catch {
+            throw PDFServiceError.officeConversionFailed
+        }
+    }
+
+    /// Microsoft Officeのパスワード保護は、暗号化ZIPではなくOLE構造化ストレージ（CFBF）でZIPパッケージ全体を
+    /// ラップする方式（MS-OFFCRYPTO）を採る。通常のdocx/xlsx/pptxは`PK\x03\x04`で始まるZIPだが、
+    /// パスワード保護されたファイルはCFBFシグネチャで始まるため、ZIP解析を試みる前に先頭バイト列で判定する。
+    private static func isEncryptedOfficeContainer(_ data: Data) -> Bool {
+        let cfbSignature: [UInt8] = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1]
+        guard data.count >= cfbSignature.count else { return false }
+        return data.prefix(cfbSignature.count).elementsEqual(cfbSignature)
+    }
+
+    /// PDFページの文字位置（`characterBounds`）から行・列を推定し、表形式の文字列グリッドとして返す。
+    /// 同一Y座標付近の文字を1行にまとめ、行内で一定以上の水平方向の空白がある箇所を列の区切りとみなす簡易ヒューリスティクス。
+    /// 罫線を検出しているわけではないため、テキストの整列が崩れているPDFでは列がずれることがある。
+    private static func extractTableRows(from page: PDFPage) -> [[String]] {
+        let characterCount = page.numberOfCharacters
+        guard characterCount > 0, let pageString = page.string else { return [] }
+
+        let nsString = pageString as NSString
+        let length = min(characterCount, nsString.length)
+
+        struct PositionedCharacter {
+            let text: String
+            let rect: CGRect
+        }
+
+        var positioned: [PositionedCharacter] = []
+        positioned.reserveCapacity(length)
+        for index in 0..<length {
+            let rect = page.characterBounds(at: index)
+            guard rect.width > 0 || rect.height > 0 else { continue }
+            positioned.append(PositionedCharacter(text: nsString.substring(with: NSRange(location: index, length: 1)), rect: rect))
+        }
+        guard !positioned.isEmpty else { return [] }
+
+        let lineYTolerance: CGFloat = 3
+        var lines: [[PositionedCharacter]] = []
+        for item in positioned {
+            if let lastItem = lines.last?.last, abs(item.rect.midY - lastItem.rect.midY) <= lineYTolerance {
+                lines[lines.count - 1].append(item)
+            } else {
+                lines.append([item])
+            }
+        }
+
+        let cellGapThreshold: CGFloat = 10
+        return lines.map { line in
+            var cells: [String] = []
+            var currentCellText = ""
+            var previousMaxX: CGFloat?
+
+            for item in line {
+                // PDFKitは離れた単語間の空白を1つの幅広い空白グリフへ丸めて表現することがあるため、
+                // 空白文字自体の幅が大きい場合もそこで列を区切る（隣接矩形間の隙間だけでは検出できない）。
+                let isWideWhitespace = item.rect.width > cellGapThreshold && item.text.trimmingCharacters(in: .whitespaces).isEmpty
+                if isWideWhitespace {
+                    if !currentCellText.trimmingCharacters(in: .whitespaces).isEmpty {
+                        cells.append(currentCellText.trimmingCharacters(in: .whitespaces))
+                        currentCellText = ""
+                    }
+                    previousMaxX = item.rect.maxX
+                    continue
+                }
+
+                if let previousMaxX, item.rect.minX - previousMaxX > cellGapThreshold {
+                    cells.append(currentCellText.trimmingCharacters(in: .whitespaces))
+                    currentCellText = ""
+                }
+                currentCellText += item.text
+                previousMaxX = item.rect.maxX
+            }
+
+            let trimmedTail = currentCellText.trimmingCharacters(in: .whitespaces)
+            if !trimmedTail.isEmpty || cells.isEmpty {
+                cells.append(trimmedTail)
+            }
+            return cells
+        }
+    }
+
+    /// シート名を見出しとして各シートを新しいページから描画し、セルをグリッド線付きの表として並べる。
+    /// 列幅は40〜150ptにクランプするため、列数が極端に多いシートは右側が用紙外にはみ出す場合がある。
+    /// シート1件の描画完了ごとに`onProgress`を呼び、描画中に確保する一時オブジェクトを`autoreleasepool`で解放する。
+    private static func renderExcelPDF(sheets: [OfficeSpreadsheetReader.Sheet], onProgress: (@Sendable (Double) -> Void)? = nil) -> Data {
+        let pageSize = CGSize(width: 792, height: 612)
+        let margin: CGFloat = 36
+        let contentWidth = pageSize.width - margin * 2
+        let rowHeight: CGFloat = 20
+        let cellFont = UIFont.systemFont(ofSize: 9)
+        let titleFont = UIFont.boldSystemFont(ofSize: 14)
+        let gridColor = UIColor(white: 0.7, alpha: 1)
+        let sheetCount = max(sheets.count, 1)
+
+        let renderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pageSize))
+        return renderer.pdfData { context in
+            for (sheetIndex, sheet) in sheets.enumerated() {
+                autoreleasepool {
+                    context.beginPage()
+                    var cursorY = margin
+
+                    (sheet.name as NSString).draw(at: CGPoint(x: margin, y: cursorY), withAttributes: [.font: titleFont])
+                    cursorY += titleFont.lineHeight + 12
+
+                    let columnCount = max(sheet.rows.map(\.count).max() ?? 0, 1)
+                    let columnWidth = min(150, max(40, contentWidth / CGFloat(columnCount)))
+
+                    for row in sheet.rows {
+                        if cursorY + rowHeight > pageSize.height - margin {
+                            context.beginPage()
+                            cursorY = margin
+                        }
+
+                        var cursorX = margin
+                        for columnIndex in 0..<columnCount {
+                            let cellRect = CGRect(x: cursorX, y: cursorY, width: columnWidth, height: rowHeight)
+                            gridColor.setStroke()
+                            UIBezierPath(rect: cellRect).stroke()
+
+                            if columnIndex < row.count, !row[columnIndex].isEmpty {
+                                (row[columnIndex] as NSString).draw(
+                                    in: cellRect.insetBy(dx: 3, dy: 3),
+                                    withAttributes: [.font: cellFont]
+                                )
+                            }
+                            cursorX += columnWidth
+                        }
+                        cursorY += rowHeight
+                    }
+                }
+                onProgress?(Double(sheetIndex + 1) / Double(sheetCount))
+            }
+        }
+    }
+
+    /// スライド1枚を1ページとして描画する。テキストは位置・サイズのみ再現しフォント装飾は既定値、画像は原寸をフレームに合わせて配置する。
+    /// スライド1枚の描画完了ごとに`onProgress`を呼ぶ。`UIImage(data:)`によるデコード結果は`autoreleasepool`で
+    /// スライドごとに解放し、スライド枚数分の画像を同時に保持しないようにする。
+    private static func renderPptxPDF(slideSizeEMU: CGSize, slides: [OfficePresentationReader.Slide], onProgress: (@Sendable (Double) -> Void)? = nil) -> Data {
+        let emuPerPoint: CGFloat = 12700
+        let fallbackSizeEMU = CGSize(width: 12_192_000, height: 6_858_000)
+        let effectiveSizeEMU = (slideSizeEMU.width > 0 && slideSizeEMU.height > 0) ? slideSizeEMU : fallbackSizeEMU
+        let pageSize = CGSize(width: effectiveSizeEMU.width / emuPerPoint, height: effectiveSizeEMU.height / emuPerPoint)
+        let bodyFont = UIFont.systemFont(ofSize: 14)
+        let slideCount = max(slides.count, 1)
+
+        func pointRect(fromEMU emuRect: CGRect) -> CGRect {
+            CGRect(
+                x: emuRect.origin.x / emuPerPoint,
+                y: emuRect.origin.y / emuPerPoint,
+                width: emuRect.width / emuPerPoint,
+                height: emuRect.height / emuPerPoint
+            )
+        }
+
+        let renderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pageSize))
+        return renderer.pdfData { context in
+            for (slideIndex, slide) in slides.enumerated() {
+                autoreleasepool {
+                    context.beginPage()
+                    for element in slide.elements {
+                        switch element {
+                        case .text(let paragraphs, let frameEMU):
+                            (paragraphs.joined(separator: "\n") as NSString).draw(
+                                in: pointRect(fromEMU: frameEMU),
+                                withAttributes: [.font: bodyFont]
+                            )
+                        case .image(let data, let frameEMU):
+                            guard let image = UIImage(data: data) else { continue }
+                            image.draw(in: pointRect(fromEMU: frameEMU))
+                        }
+                    }
+                }
+                onProgress?(Double(slideIndex + 1) / Double(slideCount))
+            }
+        }
+    }
+
     private static func makeAttributedString(fromParagraphs paragraphs: [String]) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.paragraphSpacing = 8
@@ -517,14 +745,14 @@ actor PDFService: PDFServiceProtocol {
     }
 
     /// US Letterサイズ・上下左右余白48ptでCoreTextのフレームセッターを使いページ分割しながら描画する。
-    /// 最大ページ数は暴走防止のための安全弁。
-    private static func renderPDF(from attributedString: NSAttributedString) -> Data {
+    /// 最大ページ数は暴走防止のための安全弁。ページ描画完了ごとに文字位置ベースの進捗（`currentLocation / fullLength`）を通知する。
+    private static func renderPDF(from attributedString: NSAttributedString, onProgress: (@Sendable (Double) -> Void)? = nil) -> Data {
         let pageSize = CGSize(width: 612, height: 792)
         let margin: CGFloat = 48
         let textRect = CGRect(x: margin, y: margin, width: pageSize.width - margin * 2, height: pageSize.height - margin * 2)
         let path = CGPath(rect: textRect, transform: nil)
         let framesetter = CTFramesetterCreateWithAttributedString(attributedString)
-        let fullLength = attributedString.length
+        let fullLength = max(attributedString.length, 1)
         let maxPageCount = 2000
 
         let renderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pageSize))
@@ -533,22 +761,27 @@ actor PDFService: PDFServiceProtocol {
             var renderedPageCount = 0
 
             repeat {
-                context.beginPage()
+                autoreleasepool {
+                    context.beginPage()
 
-                let cgContext = context.cgContext
-                cgContext.saveGState()
-                cgContext.translateBy(x: 0, y: pageSize.height)
-                cgContext.scaleBy(x: 1, y: -1)
+                    let cgContext = context.cgContext
+                    cgContext.saveGState()
+                    cgContext.translateBy(x: 0, y: pageSize.height)
+                    cgContext.scaleBy(x: 1, y: -1)
 
-                let frame = CTFramesetterCreateFrame(framesetter, CFRange(location: currentLocation, length: 0), path, nil)
-                CTFrameDraw(frame, cgContext)
-                cgContext.restoreGState()
+                    let frame = CTFramesetterCreateFrame(framesetter, CFRange(location: currentLocation, length: 0), path, nil)
+                    CTFrameDraw(frame, cgContext)
+                    cgContext.restoreGState()
 
-                let frameRange = CTFrameGetVisibleStringRange(frame)
-                guard frameRange.length > 0 else { break }
-
-                currentLocation += frameRange.length
-                renderedPageCount += 1
+                    let frameRange = CTFrameGetVisibleStringRange(frame)
+                    if frameRange.length > 0 {
+                        currentLocation += frameRange.length
+                        renderedPageCount += 1
+                    } else {
+                        currentLocation = fullLength
+                    }
+                }
+                onProgress?(min(Double(currentLocation) / Double(fullLength), 1))
             } while currentLocation < fullLength && renderedPageCount < maxPageCount
         }
     }

@@ -14,8 +14,6 @@ final class OfficeConvertViewModel {
     var errorMessage: String?
 
     private let pdfService: PDFServiceProtocol
-    private let progressStepCount = 20
-    private let progressStepDurationNanoseconds: UInt64 = 100_000_000
 
     init(pdfService: PDFServiceProtocol = PDFService()) {
         self.pdfService = pdfService
@@ -39,19 +37,16 @@ final class OfficeConvertViewModel {
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension(selectedFormat.fileExtension)
 
-        async let conversionResult = pdfService.convertToOffice(
-            inputURL: selectedURL,
-            format: selectedFormat,
-            outputURL: destinationURL
-        )
-
-        for step in 1...progressStepCount {
-            try? await Task.sleep(nanoseconds: progressStepDurationNanoseconds)
-            progress = Double(step) / Double(progressStepCount)
-        }
-
         do {
-            outputURL = try await conversionResult
+            outputURL = try await pdfService.convertToOffice(
+                inputURL: selectedURL,
+                format: selectedFormat,
+                outputURL: destinationURL
+            ) { [weak self] value in
+                Task { @MainActor in
+                    self?.progress = value
+                }
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -72,12 +72,7 @@ struct OfficeToPDFView: View {
                 }
             }
 
-            if let detectedFormat = viewModel.detectedFormat, detectedFormat != .word {
-                Section {
-                    Label("\(detectedFormat.label)からの変換は現在対応していません（Word形式のみ対応）。", systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(.orange)
-                }
-            } else if viewModel.detectedFormat == nil {
+            if viewModel.detectedFormat == nil {
                 Section {
                     Label("対応していないファイル形式です。", systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.orange)

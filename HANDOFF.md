@@ -13,7 +13,7 @@
 - ビルド生成: XcodeGen（`project.yml`から`.xcodeproj`を生成）+ `build.sh`でXcode GUIなしにビルド・テスト可能
 
 ## バージョン管理
-- **git未初期化**（`.git`なし）。コミット履歴・変更履歴は存在しない。継続開発する場合はまずgit initを検討する必要あり。
+- git初期化済み（`main`ブランチ、コミット履歴あり）。Swift用`.gitignore`設定済み。
 
 ## 実装済み機能（11ツール、うち10は実ロジック実装済み）
 1. PDF結合（MergeView）
@@ -26,28 +26,26 @@
 8. 電子署名（SignatureView、指描画）
 9. OCR（OCRView、Visionフレームワークで日本語/英語認識）
 10. 透かし（WatermarkView、ベクター再描画で画質劣化なし）
-11. **Office形式変換（OfficeConvertView）— 未実装。数秒待機後にダミーファイルを返すMockのみ**
+11. Office形式変換（OfficeConvertView、PDF↔Word/Excel/PowerPoint双方向、実変換ロジック実装済み）
 
 その他: 設定・キャッシュ管理画面（SettingsView）、ドキュメントスキャナ（ScannerView、VisionKit）。
 
 ## 既知の制約・未実装事項
-- `PDFService.convertToOffice` — Mock実装。Word/Excel/PowerPointへの実変換ロジックは未着手（呼び出し元のOfficeConvertViewModelはMockを叩いているだけ）。
 - `PDFService.inspect(url:)` — 未実装（`fatalError("not implemented")`）。現状呼び出し箇所はないため実害はないが、将来使う場合は実装が必要。
 - 設定画面のプライバシーポリシーはダミー表示。
 
 ## テスト状況
-- `Tests/PDFServiceTests.swift`にXCTestで23件のユニットテストを収録（結合・作成・圧縮・並び替え・回転・削除・分割・保護・透かし・Office変換の主要パス＋異常系）。
-- 2026-08-10時点で `xcodegen generate` → `./build.sh`（iPhone 17 Proシミュレータ）によりビルド成功・23件全テスト成功を確認済み。
+- `Tests/PDFServiceTests.swift`（結合・作成・圧縮・並び替え・回転・削除・分割・保護・透かし・Office変換の主要パス＋異常系、38件）
+- `Tests/SettingsViewModelTests.swift`（キャッシュサイズ計算・クリア処理、6件）
+- 2026-08-11時点で `xcodegen generate` → `./build.sh`（`DESTINATION="platform=iOS Simulator,name=iPhone 17 Pro"`、iPhone 15シミュレータは環境になし）によりビルド成功・全44件テスト成功を確認済み。
 
 ## ブランディング・アセット
 - アプリアイコン一式は生成済み（`AppIcon_Export/`配下にiOS/Android/汎用サイズを出力済み、ベクター定義は`AppIconView.swift`）。
 
 ## 次にやるべきこと（引き継ぎ先エージェントへの示唆）
-1. Office形式変換の実ロジック実装（現状最大の機能ギャップ）
-2. git初期化とコミット履歴の開始（バージョン管理が全くない状態）
-3. プライバシーポリシーの実文面作成（App Store申請前に必須）
-4. `PDFService.inspect(url:)`の実装要否の判断（未使用なら削除、使うなら実装）
-5. 実機での動作確認（これまでの確認はシミュレータのみ）
+1. `PDFService.inspect(url:)`の実装要否の判断（未使用なら削除、使うなら実装）
+2. 実機での動作確認（これまでの確認はシミュレータのみ）
+3. App Store Connectへの実際の申請作業（`docs/app-store-metadata.md`・`docs/release-notes.md`は申請可能な状態）
 
 ## 参考: リポジトリ内CLAUDE.md（このプロジェクト固有のClaude運用ルール）
 - 出力形式: コード差分/ファイル優先、説明は最小限の箇条書き

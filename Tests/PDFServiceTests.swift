@@ -366,6 +366,37 @@ final class PDFServiceTests: XCTestCase {
         }
     }
 
+    func testConvertToOfficeExtractsSeparateColumnsForExcel() async throws {
+        let sourcePDF = try makeTwoColumnPDFFile(name: "table.pdf")
+        let outputURL = workDirectory.appendingPathComponent("converted-table.xlsx")
+
+        let resultURL = try await sut.convertToOffice(inputURL: sourcePDF, format: .excel, outputURL: outputURL)
+
+        let xlsxData = try Data(contentsOf: resultURL)
+        let sheets = try OfficeSpreadsheetReader.readSheets(from: xlsxData)
+        let rows = try XCTUnwrap(sheets.first?.rows)
+        let rowWithTwoCells = try XCTUnwrap(rows.first { $0.count >= 2 })
+        XCTAssertEqual(rowWithTwoCells[0], "Left")
+        XCTAssertEqual(rowWithTwoCells[1], "Right")
+    }
+
+    func testConvertToOfficeEmbedsPageImageForPowerPoint() async throws {
+        let sourcePDF = try makePDFFile(pageCount: 2, name: "source.pdf")
+        let outputURL = workDirectory.appendingPathComponent("converted.pptx")
+
+        let resultURL = try await sut.convertToOffice(inputURL: sourcePDF, format: .powerPoint, outputURL: outputURL)
+
+        let pptxData = try Data(contentsOf: resultURL)
+        let (_, slides) = try OfficePresentationReader.readSlides(from: pptxData)
+        XCTAssertEqual(slides.count, 2)
+        for slide in slides {
+            guard case .image = slide.elements.first else {
+                XCTFail("Expected an image element per slide")
+                return
+            }
+        }
+    }
+
     func testConvertToOfficeThrowsOfficeConversionFailedForInvalidOutputPath() async throws {
         let sourcePDF = try makePDFFile(pageCount: 1, name: "source.pdf")
         let outputURL = workDirectory
@@ -412,6 +443,36 @@ final class PDFServiceTests: XCTestCase {
         }
     }
 
+    func testConvertToOfficeThrowsInvalidInputForCorruptedPDFData() async {
+        let corruptedURL = workDirectory.appendingPathComponent("corrupted.pdf")
+        try? Data("this is not a valid PDF".utf8).write(to: corruptedURL)
+        let outputURL = workDirectory.appendingPathComponent("converted.docx")
+
+        await assertThrowsAsync(
+            try await sut.convertToOffice(inputURL: corruptedURL, format: .word, outputURL: outputURL)
+        ) { error in
+            guard case PDFServiceError.invalidInput = error else {
+                XCTFail("Expected invalidInput, got \(error)")
+                return
+            }
+        }
+    }
+
+    func testConvertToOfficeReportsProgressUpToCompletion() async throws {
+        let sourcePDF = try makePDFFile(pageCount: 3, name: "source.pdf")
+        let outputURL = workDirectory.appendingPathComponent("converted.docx")
+        let recorder = ProgressRecorder()
+
+        _ = try await sut.convertToOffice(inputURL: sourcePDF, format: .word, outputURL: outputURL) { value in
+            recorder.record(value)
+        }
+
+        let values = recorder.values
+        XCTAssertEqual(values.count, 3)
+        XCTAssertEqual(values, values.sorted())
+        XCTAssertEqual(values.last, 1.0)
+    }
+
     // MARK: - convertOfficeToPDF
 
     func testConvertOfficeToPDFConvertsWordDocument() async throws {
@@ -428,20 +489,32 @@ final class PDFServiceTests: XCTestCase {
         XCTAssertTrue(extractedText.contains("Hello PDF One"))
     }
 
-    func testConvertOfficeToPDFThrowsUnsupportedForExcelAndPowerPoint() async {
-        let dummyURL = workDirectory.appendingPathComponent("dummy.xlsx")
-        let outputURL = workDirectory.appendingPathComponent("converted.pdf")
+    func testConvertOfficeToPDFConvertsExcelWorkbook() async throws {
+        let xlsxData = OfficeDocumentBuilder.makeXlsx(sheets: [[["Header1", "Header2"], ["Value1", "Value2"]]])
+        let sourceXlsx = workDirectory.appendingPathComponent("source.xlsx")
+        try xlsxData.write(to: sourceXlsx)
+        let outputURL = workDirectory.appendingPathComponent("converted-excel.pdf")
 
-        for format in [OfficeFormat.excel, OfficeFormat.powerPoint] {
-            await assertThrowsAsync(
-                try await sut.convertOfficeToPDF(inputURL: dummyURL, format: format, outputURL: outputURL)
-            ) { error in
-                guard case PDFServiceError.unsupportedOfficeFormat = error else {
-                    XCTFail("Expected unsupportedOfficeFormat, got \(error)")
-                    return
-                }
-            }
-        }
+        let resultURL = try await sut.convertOfficeToPDF(inputURL: sourceXlsx, format: .excel, outputURL: outputURL)
+
+        let document = try XCTUnwrap(PDFDocument(url: resultURL))
+        XCTAssertGreaterThan(document.pageCount, 0)
+        let extractedText = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
+        XCTAssertTrue(extractedText.contains("Value1"))
+    }
+
+    func testConvertOfficeToPDFConvertsPowerPointPresentation() async throws {
+        let pptxData = OfficeDocumentBuilder.makePptx(slides: [.text("Hello Slide")])
+        let sourcePptx = workDirectory.appendingPathComponent("source.pptx")
+        try pptxData.write(to: sourcePptx)
+        let outputURL = workDirectory.appendingPathComponent("converted-ppt.pdf")
+
+        let resultURL = try await sut.convertOfficeToPDF(inputURL: sourcePptx, format: .powerPoint, outputURL: outputURL)
+
+        let document = try XCTUnwrap(PDFDocument(url: resultURL))
+        XCTAssertGreaterThan(document.pageCount, 0)
+        let extractedText = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }.joined()
+        XCTAssertTrue(extractedText.contains("Hello Slide"))
     }
 
     func testConvertOfficeToPDFThrowsFileTooLargeForOversizedInput() async throws {
@@ -456,6 +529,56 @@ final class PDFServiceTests: XCTestCase {
                 return
             }
         }
+    }
+
+    func testConvertOfficeToPDFThrowsPasswordProtectedFileForEncryptedContainer() async throws {
+        let encryptedURL = workDirectory.appendingPathComponent("protected.docx")
+        // MS-OFFCRYPTOで暗号化されたOffice文書は、通常のZIPではなくOLE構造化ストレージ(CFBF)でラップされ、
+        // このシグネチャで始まる。ZIP解析を試みる前に検出できることを確認する。
+        let cfbSignature = Data([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1])
+        try (cfbSignature + Data(repeating: 0, count: 64)).write(to: encryptedURL)
+        let outputURL = workDirectory.appendingPathComponent("converted.pdf")
+
+        await assertThrowsAsync(
+            try await sut.convertOfficeToPDF(inputURL: encryptedURL, format: .word, outputURL: outputURL)
+        ) { error in
+            guard case PDFServiceError.passwordProtectedFile = error else {
+                XCTFail("Expected passwordProtectedFile, got \(error)")
+                return
+            }
+        }
+    }
+
+    func testConvertOfficeToPDFThrowsOfficeConversionFailedForCorruptedZip() async throws {
+        let corruptedURL = workDirectory.appendingPathComponent("corrupted.docx")
+        try Data("this is not a valid zip/office package".utf8).write(to: corruptedURL)
+        let outputURL = workDirectory.appendingPathComponent("converted.pdf")
+
+        await assertThrowsAsync(
+            try await sut.convertOfficeToPDF(inputURL: corruptedURL, format: .word, outputURL: outputURL)
+        ) { error in
+            guard case PDFServiceError.officeConversionFailed = error else {
+                XCTFail("Expected officeConversionFailed, got \(error)")
+                return
+            }
+        }
+    }
+
+    func testConvertOfficeToPDFReportsProgressUpToCompletion() async throws {
+        let pptxData = OfficeDocumentBuilder.makePptx(slides: [.text("A"), .text("B"), .text("C")])
+        let sourcePptx = workDirectory.appendingPathComponent("source.pptx")
+        try pptxData.write(to: sourcePptx)
+        let outputURL = workDirectory.appendingPathComponent("converted.pdf")
+        let recorder = ProgressRecorder()
+
+        _ = try await sut.convertOfficeToPDF(inputURL: sourcePptx, format: .powerPoint, outputURL: outputURL) { value in
+            recorder.record(value)
+        }
+
+        let values = recorder.values
+        XCTAssertEqual(values.count, 3)
+        XCTAssertEqual(values, values.sorted())
+        XCTAssertEqual(values.last, 1.0)
     }
 
     // MARK: - Helpers
@@ -493,6 +616,20 @@ final class PDFServiceTests: XCTestCase {
         return url
     }
 
+    /// 同一行の離れたX座標に2つの文字列を描画したPDFを作成する。表抽出ヒューリスティクスの列分割テスト用。
+    private func makeTwoColumnPDFFile(name: String) throws -> URL {
+        let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 400, height: 100))
+        let data = renderer.pdfData { context in
+            context.beginPage()
+            let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 14)]
+            ("Left" as NSString).draw(at: CGPoint(x: 20, y: 40), withAttributes: attributes)
+            ("Right" as NSString).draw(at: CGPoint(x: 250, y: 40), withAttributes: attributes)
+        }
+        let url = workDirectory.appendingPathComponent(name)
+        try data.write(to: url)
+        return url
+    }
+
     private func makeImageFile(name: String, size: CGSize, color: UIColor) throws -> URL {
         let renderer = UIGraphicsImageRenderer(size: size)
         let image = renderer.image { context in
@@ -503,6 +640,24 @@ final class PDFServiceTests: XCTestCase {
         let url = workDirectory.appendingPathComponent(name)
         try data.write(to: url)
         return url
+    }
+}
+
+/// `onProgress`コールバックはactor内から任意のタイミングで呼ばれるため、テスト側での値収集をロックで保護する。
+private final class ProgressRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var recordedValues: [Double] = []
+
+    var values: [Double] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recordedValues
+    }
+
+    func record(_ value: Double) {
+        lock.lock()
+        defer { lock.unlock() }
+        recordedValues.append(value)
     }
 }
 
