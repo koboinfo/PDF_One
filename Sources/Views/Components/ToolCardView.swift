@@ -4,6 +4,7 @@ import SwiftUI
 /// アイコンは細身のSF Symbolsとパステルトーンの背景円で統一する。
 struct ToolCardView: View {
     let tool: ToolItem
+    var isLocked: Bool = false
     let action: () -> Void
 
     var body: some View {
@@ -24,6 +25,8 @@ struct ToolCardView: View {
             .overlay(alignment: .topTrailing) {
                 if tool.isComingSoon {
                     comingSoonBadge
+                } else if isLocked {
+                    proBadge
                 }
             }
         }
@@ -56,6 +59,16 @@ struct ToolCardView: View {
             .padding(.vertical, 3)
             .background(Color.secondary.opacity(0.12), in: Capsule())
             .foregroundStyle(.secondary)
+            .padding(10)
+    }
+
+    private var proBadge: some View {
+        Label("Pro", systemImage: "crown.fill")
+            .labelStyle(.iconOnly)
+            .font(.system(size: 10, weight: .semibold))
+            .padding(6)
+            .background(Color.orange.opacity(0.16), in: Circle())
+            .foregroundStyle(.orange)
             .padding(10)
     }
 }

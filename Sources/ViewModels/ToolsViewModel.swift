@@ -19,11 +19,11 @@ final class ToolsViewModel {
             ToolItem(title: "PDF→JPG", iconType: .pdfToJPG, route: .pdfToJPG),
             ToolItem(title: "PDF分割", iconType: .splitPDF, route: .splitPDF),
             ToolItem(title: "パスワード設定", iconType: .protectPDF, route: .protectPDF),
-            ToolItem(title: "電子署名", iconType: .signature, route: .signature),
-            ToolItem(title: "OCR", iconType: .ocr, route: .ocr),
-            ToolItem(title: "透かし", iconType: .watermark, route: .watermark),
-            ToolItem(title: "PDF→Office", iconType: .pdfToWord, route: .officeConvert),
-            ToolItem(title: "Office→PDF", iconType: .officeToPDF, route: .officeToPDF)
+            ToolItem(title: "電子署名", iconType: .signature, route: .signature, isPro: true),
+            ToolItem(title: "OCR", iconType: .ocr, route: .ocr, isPro: true),
+            ToolItem(title: "透かし", iconType: .watermark, route: .watermark, isPro: true),
+            ToolItem(title: "PDF→Office", iconType: .pdfToWord, route: .officeConvert, isPro: true),
+            ToolItem(title: "Office→PDF", iconType: .officeToPDF, route: .officeToPDF, isPro: true)
         ]
 
         comingSoonTools = []

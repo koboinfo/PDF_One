@@ -19,7 +19,13 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "1000000001",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0",
+            "internalID" : "1000000003",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
           "localizations" : [
             {
               "description" : "PDF One Proの月額プラン。すべての機能を無制限に利用できます。",
@@ -40,7 +46,13 @@
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "1000000002",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0",
+            "internalID" : "1000000004",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
           "localizations" : [
             {
               "description" : "PDF One Proの年額プラン。すべての機能を無制限に利用できます（2ヶ月分お得）。",

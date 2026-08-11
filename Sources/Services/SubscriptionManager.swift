@@ -45,6 +45,13 @@ final class SubscriptionManager {
     /// 正としては扱わず、起動時・Transaction更新時に必ずStoreKitの実体（Transaction.currentEntitlements）で上書きする。
     private(set) var isSubscribed: Bool
 
+    /// 現在有効なプランのプロダクトID（複数同時購読は想定しないため単一値）。設定画面での表示用。
+    private(set) var activeProductID: String?
+    /// 現在有効なプランの更新日/失効日。トライアル中もこの日付が「トライアル終了日」を兼ねる。
+    private(set) var activeExpirationDate: Date?
+    /// 現在有効なプランが無料トライアル中かどうか。
+    private(set) var isInIntroductoryOffer: Bool = false
+
     private let userDefaults: UserDefaults
     private static let isProCacheKey = "com.pdfone.subscription.isProCache"
 
@@ -58,6 +65,13 @@ final class SubscriptionManager {
             await loadProducts()
             await refreshEntitlements()
         }
+    }
+
+    /// 指定プロダクトが購入画面時点でまだ無料トライアルの対象かどうか（過去に同一グループを購読したことがあると`false`になる）。
+    func isEligibleForIntroOffer(_ product: Product) async -> Bool {
+        guard let subscription = product.subscription else { return false }
+        guard subscription.introductoryOffer != nil else { return false }
+        return await subscription.isEligibleForIntroOffer
     }
 
     func loadProducts() async {
@@ -102,16 +116,29 @@ final class SubscriptionManager {
     /// `Transaction.currentEntitlements`を正として購読状態を再計算し、ローカルキャッシュを更新する。
     func refreshEntitlements() async {
         var activeProductIDs: Set<String> = []
+        var latestExpirationDate: Date?
+        var latestProductID: String?
+        var latestIsIntroductory = false
 
         for await result in Transaction.currentEntitlements {
             guard let transaction = try? Self.checkVerified(result) else { continue }
-            if transaction.revocationDate == nil {
-                activeProductIDs.insert(transaction.productID)
+            guard transaction.revocationDate == nil else { continue }
+
+            activeProductIDs.insert(transaction.productID)
+
+            // 複数エンタイトルメントが返るケース（プラン切り替え直後等）では、失効日が最も新しいものを「現在のプラン」とみなす。
+            if latestExpirationDate == nil || (transaction.expirationDate ?? .distantFuture) > (latestExpirationDate ?? .distantPast) {
+                latestExpirationDate = transaction.expirationDate
+                latestProductID = transaction.productID
+                latestIsIntroductory = transaction.offerType == .introductory
             }
         }
 
         purchasedProductIDs = activeProductIDs
         isSubscribed = !activeProductIDs.isEmpty
+        activeProductID = latestProductID
+        activeExpirationDate = latestExpirationDate
+        isInIntroductoryOffer = latestIsIntroductory
         userDefaults.set(isSubscribed, forKey: Self.isProCacheKey)
     }
 
@@ -123,6 +150,10 @@ final class SubscriptionManager {
                 await transaction.finish()
             }
         }
+    }
+
+    func product(for id: SubscriptionProductID) -> Product? {
+        products.first { $0.id == id.rawValue }
     }
 
     private nonisolated static func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {

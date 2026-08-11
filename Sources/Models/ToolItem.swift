@@ -52,6 +52,7 @@ struct ToolItem: Identifiable, Hashable {
     let title: String
     let iconType: ToolIconType
     let route: ToolRoute?
+    var isPro: Bool = false
 
     var isComingSoon: Bool { route == nil }
 }
