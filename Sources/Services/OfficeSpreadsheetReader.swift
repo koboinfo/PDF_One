@@ -8,21 +8,34 @@ enum OfficeSpreadsheetReader {
         let rows: [[String]]
     }
 
-    static func readSheets(from xlsxData: Data) throws -> [Sheet] {
+    /// シートごとのXML解析は互いに独立しているため、シート数が多いブック（大容量ファイル）ほど
+    /// `TaskGroup`による並列解析の効果が大きい。各子タスクは`sheetRefs`のインデックスを持ち回し、
+    /// 完了順に関わらず元のシート順を復元する。
+    static func readSheets(from xlsxData: Data) async throws -> [Sheet] {
         let sharedStrings = (try? readSharedStrings(from: xlsxData)) ?? []
         let sheetRefs = try readSheetRefs(from: xlsxData)
 
-        var sheets: [Sheet] = []
-        for ref in sheetRefs {
-            guard let sheetXML = try? OOXMLZipReader.extract(from: xlsxData, path: ref.path) else { continue }
-            let extractor = SheetRowExtractor(sharedStrings: sharedStrings)
-            let parser = XMLParser(data: sheetXML)
-            parser.shouldProcessNamespaces = true
-            parser.delegate = extractor
-            guard parser.parse() else { continue }
-            sheets.append(Sheet(name: ref.name, rows: extractor.rows))
+        let indexedSheets: [(index: Int, sheet: Sheet)] = try await withThrowingTaskGroup(of: (index: Int, sheet: Sheet)?.self) { group in
+            for (index, ref) in sheetRefs.enumerated() {
+                group.addTask {
+                    guard let sheetXML = try? OOXMLZipReader.extract(from: xlsxData, path: ref.path) else { return nil }
+                    let extractor = SheetRowExtractor(sharedStrings: sharedStrings)
+                    let parser = XMLParser(data: sheetXML)
+                    parser.shouldProcessNamespaces = true
+                    parser.delegate = extractor
+                    guard parser.parse() else { return nil }
+                    return (index, Sheet(name: ref.name, rows: extractor.rows))
+                }
+            }
+
+            var results: [(index: Int, sheet: Sheet)] = []
+            for try await result in group {
+                if let result { results.append(result) }
+            }
+            return results
         }
 
+        let sheets = indexedSheets.sorted { $0.index < $1.index }.map(\.sheet)
         guard !sheets.isEmpty else {
             throw OfficeDocumentReader.ReadError.malformedXML
         }

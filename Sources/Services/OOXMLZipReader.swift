@@ -10,7 +10,16 @@ enum OOXMLZipReader {
         case invalidArchive
         case entryNotFound(String)
         case decompressionFailed(String)
+        case entryTooLarge(String)
     }
+
+    /// 展開後サイズがこれを超えるエントリは、破損または悪意あるzip bomb的な申告とみなし拒否する。
+    /// docx/xlsx/pptxの単一パーツ（XML・画像等）がこの値を正当に超えることは通常ない。
+    private static let maxUncompressedEntrySize = 300_000_000
+
+    /// 展開後/圧縮後サイズの比率がこれを超える場合も、圧縮率として現実的でないため拒否する
+    /// （一般的なXML/画像は数倍〜数十倍程度に収まる。正規のOfficeファイルの許容範囲を広めに取りつつzip bombを弾く）。
+    private static let maxExpansionRatio = 2000
 
     private struct CentralDirectoryEntry {
         let path: String
@@ -37,6 +46,14 @@ enum OOXMLZipReader {
     }
 
     private static func extractEntry(_ entry: CentralDirectoryEntry, from data: Data) throws -> Data {
+        guard entry.uncompressedSize <= maxUncompressedEntrySize else {
+            throw ZipError.entryTooLarge(entry.path)
+        }
+        guard entry.compressedSize == 0
+            || entry.uncompressedSize / max(entry.compressedSize, 1) <= maxExpansionRatio else {
+            throw ZipError.entryTooLarge(entry.path)
+        }
+
         guard let localHeaderData = subdata(data, at: entry.localHeaderOffset, length: 30),
               readUInt32LE(localHeaderData, at: 0) == 0x0403_4b50 else {
             throw ZipError.invalidArchive

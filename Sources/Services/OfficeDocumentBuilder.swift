@@ -69,6 +69,7 @@ enum OfficeDocumentBuilder {
             workbookSheetsXML += "<sheet name=\"\(xmlEscape(sheetNames[sheetIndex]))\" sheetId=\"\(sheetNumber)\" r:id=\"rId\(sheetNumber)\"/>"
             workbookRelsXML += "<Relationship Id=\"rId\(sheetNumber)\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet\(sheetNumber).xml\"/>"
         }
+        workbookRelsXML += "<Relationship Id=\"rId\(sheets.count + 1)\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>"
 
         let workbookXML = """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -90,6 +91,7 @@ enum OfficeDocumentBuilder {
         <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
         <Default Extension="xml" ContentType="application/xml"/>
         <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+        <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
         \(contentTypeOverrides)
         </Types>
         """
@@ -105,11 +107,37 @@ enum OfficeDocumentBuilder {
             .init(path: "[Content_Types].xml", data: Data(contentTypes.utf8)),
             .init(path: "_rels/.rels", data: Data(rootRels.utf8)),
             .init(path: "xl/workbook.xml", data: Data(workbookXML.utf8)),
-            .init(path: "xl/_rels/workbook.xml.rels", data: Data(workbookRels.utf8))
+            .init(path: "xl/_rels/workbook.xml.rels", data: Data(workbookRels.utf8)),
+            .init(path: "xl/styles.xml", data: Data(Self.stylesXML.utf8))
         ])
 
         return OOXMLZipWriter.write(entries: entries)
     }
+
+    /// セルスタイルの定義。`cellXfs`のインデックス1（全辺に細い罫線）を各セルの`s`属性から参照する。
+    private static let stylesXML = """
+    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+    <fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>
+    <fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
+    <borders count="2">
+    <border><left/><right/><top/><bottom/><diagonal/></border>
+    <border>
+    <left style="thin"><color rgb="FFB7B7B7"/></left>
+    <right style="thin"><color rgb="FFB7B7B7"/></right>
+    <top style="thin"><color rgb="FFB7B7B7"/></top>
+    <bottom style="thin"><color rgb="FFB7B7B7"/></bottom>
+    <diagonal/>
+    </border>
+    </borders>
+    <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+    <cellXfs count="2">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>
+    </cellXfs>
+    <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+    </styleSheet>
+    """
 
     private static func makeSheetXML(rows: [[String]]) -> String {
         var rowsXML = ""
@@ -119,7 +147,11 @@ enum OfficeDocumentBuilder {
             for (colIndex, value) in row.enumerated() {
                 let cellRef = "\(columnLetter(for: colIndex))\(rowNumber)"
                 let truncated = String(value.prefix(32_000))
-                cellsXML += "<c r=\"\(cellRef)\" t=\"inlineStr\"><is><t xml:space=\"preserve\">\(xmlEscape(truncated))</t></is></c>"
+                if let numericValue = numericCellValue(truncated) {
+                    cellsXML += "<c r=\"\(cellRef)\" s=\"1\"><v>\(numericValue)</v></c>"
+                } else {
+                    cellsXML += "<c r=\"\(cellRef)\" s=\"1\" t=\"inlineStr\"><is><t xml:space=\"preserve\">\(xmlEscape(truncated))</t></is></c>"
+                }
             }
             rowsXML += "<row r=\"\(rowNumber)\">\(cellsXML)</row>"
         }
@@ -130,6 +162,19 @@ enum OfficeDocumentBuilder {
         <sheetData>\(rowsXML)</sheetData>
         </worksheet>
         """
+    }
+
+    /// セルの文字列がExcel上で数値として扱えるかを判定し、数値なら`<v>`にそのまま書ける正規化済み文字列を返す。
+    /// 先頭ゼロ（"0123"等、郵便番号やコードの可能性が高い）は数値化せず文字列のまま保持する。
+    private static func numericCellValue(_ value: String) -> String? {
+        guard !value.isEmpty, Double(value) != nil else { return nil }
+        if value.count > 1, value.hasPrefix("0"), !value.hasPrefix("0.") {
+            return nil
+        }
+        if value.count > 2, value.hasPrefix("-0"), !value.hasPrefix("-0.") {
+            return nil
+        }
+        return value
     }
 
     private static func columnLetter(for zeroBasedIndex: Int) -> String {

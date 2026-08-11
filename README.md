@@ -42,10 +42,10 @@ PDFにユーザー/オーナーパスワードを設定して暗号化する。�
 入力したテキストを全ページ中央に45度回転・半透明で描画し、透かし入りPDFとして保存する。ページ内容はベクターのまま再描画されるため画質劣化がない。
 
 ### 11. Office形式変換（[OfficeConvertView](Sources/Views/OfficeConvertView.swift) / [OfficeConvertViewModel](Sources/ViewModels/OfficeConvertViewModel.swift)）
-PDFをWord/Excel/PowerPoint形式へ変換する。**現在は実変換ロジック未実装のMockで、数秒の待機後にダミーファイルを出力する。**
+PDFをWord/Excel/PowerPoint形式へ変換する。双方向（PDF↔Word/Excel/PowerPoint）の実変換ロジック（OOXML Zipリーダー/ライター等）が実装済み。XCTestの変換テスト（異常系含む）は全件Pass。
 
 ### 12. 設定・キャッシュ管理（[SettingsView](Sources/Views/SettingsView.swift) / [SettingsViewModel](Sources/ViewModels/SettingsViewModel.swift)）
-処理中に一時ディレクトリへ生成されるPDF/JPEGファイルのサイズを計算・表示し、まとめて削除できる。アプリバージョン表示、使い方ヘルプ、プライバシーポリシー（ダミー表示）へのアクセスも提供する。
+処理中に一時ディレクトリへ生成されるPDF/JPEGファイルのサイズを計算・表示し、まとめて削除できる。アプリバージョン表示、使い方ヘルプ、プライバシーポリシー（実文面、[PrivacyPolicyView](Sources/Views/PrivacyPolicyView.swift)）へのアクセスも提供する。
 
 ## 共通コンポーネント
 
@@ -73,13 +73,12 @@ PDFをWord/Excel/PowerPoint形式へ変換する。**現在は実変換ロジッ
 - `splitPDF` — ページ範囲ごとに複数PDFへ分割
 - `protectPDF` / `unlockPDF` — パスワードによる暗号化・解除
 - `addWatermark` — 全ページへテキスト透かしをベクターのまま合成
-- `convertToOffice` — Word/Excel/PowerPoint変換（**Mock実装**、実変換ロジックは未実装）
+- `convertToOffice` / `convertOfficeToPDF` — Word/Excel/PowerPoint双方向変換（OOXML Zipリーダー/ライターによる実変換ロジック実装済み）
 
 `Tests/PDFServiceTests.swift`にXCTestによるユニットテストを収録（結合・変換・圧縮・並び替え・回転・削除・分割・保護・透かし・Office変換の主要パスと異常系を網羅）。
 
 > **既知の制約**:
 > - `PDFService.inspect(url:)`は未実装（`fatalError`）。呼び出し箇所は現状なし。
-> - `PDFService.convertToOffice`は数秒待機後にダミーファイルを返すMockであり、実際のOffice形式への変換は行わない。
 
 ## アーキテクチャ
 
