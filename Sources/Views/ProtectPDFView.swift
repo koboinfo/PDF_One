@@ -67,7 +67,11 @@ struct ProtectPDFView: View {
 
             Section("パスワード") {
                 SecureField("パスワード", text: $viewModel.password)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
                 SecureField("パスワード（確認用）", text: $viewModel.confirmPassword)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
             }
 
             if let outputURL = viewModel.outputURL {

@@ -78,6 +78,7 @@ struct WatermarkView: View {
 
             Section("透かしテキスト") {
                 TextField("例：CONFIDENTIAL", text: $viewModel.watermarkText)
+                    .autocorrectionDisabled(true)
             }
 
             if let outputURL = viewModel.outputURL {

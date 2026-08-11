@@ -32,6 +32,8 @@ struct FilesView: View {
             }
             .navigationTitle("ファイル")
             .searchable(text: $viewModel.searchText, prompt: "ファイル名で検索")
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
