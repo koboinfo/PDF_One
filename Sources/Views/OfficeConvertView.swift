@@ -8,10 +8,10 @@ struct OfficeConvertView: View {
 
     var body: some View {
         Group {
-            if subscriptionManager.isSubscribed {
+            if subscriptionManager.isProUser {
                 toolContent
             } else {
-                PaywallView()
+                PaywallContentView()
             }
         }
     }

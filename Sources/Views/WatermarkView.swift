@@ -8,10 +8,10 @@ struct WatermarkView: View {
 
     var body: some View {
         Group {
-            if subscriptionManager.isSubscribed {
+            if subscriptionManager.isProUser {
                 toolContent
             } else {
-                PaywallView()
+                PaywallContentView()
             }
         }
     }
@@ -78,6 +78,7 @@ struct WatermarkView: View {
 
             Section("透かしテキスト") {
                 TextField("例：CONFIDENTIAL", text: $viewModel.watermarkText)
+                    .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
             }
 

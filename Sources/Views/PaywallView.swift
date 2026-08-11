@@ -1,9 +1,9 @@
 import StoreKit
 import SwiftUI
 
-/// 課金ゲート対象ツール（署名・OCR・透かし・Office変換）を開こうとした際、または設定画面からのアップグレード導線として表示するペイウォール。
-/// App Store審査要件（Guideline 3.1.2）に従い、購読前に商品名・期間・価格を明示し、閉じるボタン・購入の復元・利用規約/プライバシーポリシーへのリンクを常設する。
-struct PaywallView: View {
+/// 課金ゲート対象ツール（署名・OCR・透かし・Office変換）を開こうとした際、または設定画面からのアップグレード導線として表示するペイウォールの中身。
+/// `NavigationStack`を持たない純粋なViewとして、モーダル表示（`PaywallView`）とツール画面へのインライン差し替えの両方から共有する。
+struct PaywallContentView: View {
     @Environment(SubscriptionManager.self) private var subscriptionManager
     @Environment(\.dismiss) private var dismiss
 
@@ -12,28 +12,15 @@ struct PaywallView: View {
     @State private var isShowingPrivacyPolicy = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                if let viewModel {
-                    content(viewModel)
-                } else {
-                    ProgressView()
-                        .padding(.top, 80)
-                }
-            }
-            .background(AppBackground())
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                }
+        ScrollView {
+            if let viewModel {
+                content(viewModel)
+            } else {
+                ProgressView()
+                    .padding(.top, 80)
             }
         }
+        .background(AppBackground())
         .task {
             if viewModel == nil {
                 viewModel = PaywallViewModel(subscriptionManager: subscriptionManager)
@@ -204,7 +191,7 @@ struct PaywallView: View {
         Button {
             Task {
                 await viewModel.restore()
-                if subscriptionManager.isSubscribed {
+                if subscriptionManager.isProUser {
                     dismiss()
                 }
             }
@@ -244,6 +231,29 @@ struct PaywallView: View {
             return "7日間無料で始める"
         }
         return "購入する"
+    }
+}
+
+/// `PaywallContentView`をモーダル（sheet）表示用に`NavigationStack`と閉じるボタンで包んだもの。
+/// ツール画面へのインライン差し替えでは、二重`NavigationStack`を避けるため`PaywallContentView`を直接使う。
+struct PaywallView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            PaywallContentView()
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+        }
     }
 }
 
