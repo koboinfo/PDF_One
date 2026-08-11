@@ -57,6 +57,5 @@ enum SavedFileStore {
     static func availableCapacityBytes(for url: URL, fileManager: FileManager = .default) -> Int64? {
         (try? url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]))?
             .volumeAvailableCapacityForImportantUsage
-            .map(Int64.init)
     }
 }
