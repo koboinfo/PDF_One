@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Preview only (rounded for Home Screen mockup). Export PNG must be unmasked full-bleed square, grayscale. -->
+  <!-- Shown pre-tint (as authored). The system applies the user-selected tint at render time. -->
+  <title>PDF One App Icon — Tinted (iOS 18 tinted appearance)</title>
+  <defs>
+    <clipPath id="squircle-tinted">
+      <rect x="0" y="0" width="1024" height="1024" rx="229" ry="229"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#squircle-tinted)">
+    <rect x="0" y="0" width="1024" height="1024" fill="#D2D4D9"/>
+
+    <path d="M313.3,260.8 A179.2,179.2 0 1,1 324.0,383.4"
+          fill="none" stroke="#3A3B3D" stroke-width="138.24"
+          stroke-linecap="round"/>
+
+    <path d="M353.28,138.24
+             C307.2,307.2 286.72,430.08 307.2,558.08
+             C332.8,675.84 307.2,757.76 430.08,839.68
+             C512,896 389.12,916.48 307.2,880.64"
+          fill="none" stroke="#3A3B3D" stroke-width="158.72"
+          stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Wordmark intentionally omitted: fine text loses legibility once the
+         system strips color and applies a single tint at small sizes. -->
+  </g>
+</svg>
