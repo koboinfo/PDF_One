@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum ToolRoute: Hashable, Identifiable {
+enum ToolRoute: Hashable, Identifiable, CaseIterable {
     case merge, imageToPDF, compress, pageEdit, pdfToJPG, splitPDF, protectPDF, signature, ocr
     case watermark, officeConvert, officeToPDF
 

@@ -32,6 +32,7 @@ targets:
         NSCameraUsageDescription: "書類をスキャンしてPDFを作成するためにカメラを使用します。"
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
+        NSFaceIDUsageDescription: "アプリロックの解除にFace IDを使用します。"
         CFBundleDocumentTypes:
           - CFBundleTypeName: "PDF Document"
             CFBundleTypeRole: "Viewer"
@@ -56,6 +57,11 @@ targets:
             LSItemContentTypes:
               - "org.openxmlformats.presentationml.presentation"
               - "com.microsoft.powerpoint.ppt"
+    entitlements:
+      path: PDF_One.entitlements
+      properties:
+        com.apple.developer.applesignin:
+          - Default
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.pdfone.PDFOne

@@ -17,7 +17,7 @@ struct ToolCardView: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: 44)
             .padding(.vertical, 26)
             .padding(.horizontal, 10)
             .opacity(tool.isComingSoon ? 0.45 : 1)
@@ -30,7 +30,7 @@ struct ToolCardView: View {
                 }
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(ToolCardButtonStyle())
         .disabled(tool.isComingSoon)
     }
 
@@ -50,6 +50,10 @@ struct ToolCardView: View {
             .fill(Color.white)
             .shadow(color: .black.opacity(0.06), radius: 14, x: 0, y: 8)
             .shadow(color: .white.opacity(0.9), radius: 6, x: -3, y: -3)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+            )
     }
 
     private var comingSoonBadge: some View {
@@ -73,11 +77,26 @@ struct ToolCardView: View {
     }
 }
 
+/// 押下時にわずかに縮小・減光させ、指で押し込んだ感触を出すボタンスタイル。
+private struct ToolCardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
 #Preview {
     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
         ToolCardView(tool: ToolItem(title: "PDF結合", iconType: .merge, route: .merge), action: {})
         ToolCardView(tool: ToolItem(title: "画像→PDF", iconType: .imageToPDF, route: .imageToPDF), action: {})
-        ToolCardView(tool: ToolItem(title: "電子署名", iconType: .signature, route: nil), action: {})
+        ToolCardView(
+            tool: ToolItem(title: "電子署名", iconType: .signature, route: .signature, isPro: true),
+            isLocked: true,
+            action: {}
+        )
+        ToolCardView(tool: ToolItem(title: "準備中ツール", iconType: .watermark, route: nil), action: {})
     }
     .padding(20)
     .background(Color(hue: 0.62, saturation: 0.05, brightness: 0.95))

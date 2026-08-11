@@ -54,7 +54,7 @@ private struct PrimaryButtonStyle: ButtonStyle {
     }
 
     private var foregroundColor: Color {
-        style == .prominent ? .white : .primary.opacity(0.85)
+        style == .prominent ? .primary : .primary.opacity(0.85)
     }
 
     @ViewBuilder
@@ -62,14 +62,22 @@ private struct PrimaryButtonStyle: ButtonStyle {
         switch style {
         case .prominent:
             Capsule(style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [Color(white: 0.22), Color(white: 0.04)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    Capsule(style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.accentColor.opacity(0.35), Color.accentColor.opacity(0.12)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                 )
-                .shadow(color: .black.opacity(0.28), radius: 12, x: 0, y: 6)
+                .overlay(
+                    Capsule(style: .continuous)
+                        .stroke(Color.white.opacity(0.35), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 4)
         case .bordered:
             Capsule(style: .continuous)
                 .fill(Color.white.opacity(0.75))

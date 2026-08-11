@@ -80,6 +80,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>書類をスキャンしてPDFを作成するためにカメラを使用します。</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>アプリロックの解除にFace IDを使用します。</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UILaunchScreen</key>

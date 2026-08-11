@@ -56,7 +56,7 @@ final class SubscriptionManagerTests: XCTestCase {
         let result = try await manager.purchase(monthly)
 
         XCTAssertTrue(result)
-        XCTAssertTrue(manager.isSubscribed)
+        XCTAssertTrue(manager.isProUser)
         XCTAssertEqual(manager.purchasedProductIDs, [SubscriptionProductID.monthly.rawValue])
         XCTAssertEqual(manager.activeProductID, SubscriptionProductID.monthly.rawValue)
     }
@@ -72,7 +72,7 @@ final class SubscriptionManagerTests: XCTestCase {
 
         try await manager.purchase(monthly)
 
-        XCTAssertTrue(manager.isSubscribed)
+        XCTAssertTrue(manager.isProUser)
         XCTAssertTrue(manager.isInIntroductoryOffer)
 
         let expirationDate = try XCTUnwrap(manager.activeExpirationDate)
@@ -111,7 +111,7 @@ final class SubscriptionManagerTests: XCTestCase {
             // 期待どおり
         }
 
-        XCTAssertFalse(manager.isSubscribed)
+        XCTAssertFalse(manager.isProUser)
     }
 
     // MARK: - Cancellation (auto-renew off, access continues until period end)
@@ -121,14 +121,14 @@ final class SubscriptionManagerTests: XCTestCase {
         await manager.loadProducts()
         let monthly = try XCTUnwrap(manager.product(for: .monthly))
         try await manager.purchase(monthly)
-        XCTAssertTrue(manager.isSubscribed)
+        XCTAssertTrue(manager.isProUser)
 
         let transaction = try testTransaction(for: .monthly)
         try session.disableAutoRenewForTransaction(identifier: transaction.identifier)
         await manager.refreshEntitlements()
 
         // 自動更新をオフにしても、現在の契約期間が終わるまではProアクセスを維持する。
-        XCTAssertTrue(manager.isSubscribed)
+        XCTAssertTrue(manager.isProUser)
         XCTAssertEqual(manager.activeProductID, SubscriptionProductID.monthly.rawValue)
     }
 
@@ -139,12 +139,12 @@ final class SubscriptionManagerTests: XCTestCase {
         await manager.loadProducts()
         let monthly = try XCTUnwrap(manager.product(for: .monthly))
         try await manager.purchase(monthly)
-        XCTAssertTrue(manager.isSubscribed)
+        XCTAssertTrue(manager.isProUser)
 
         try session.expireSubscription(productIdentifier: SubscriptionProductID.monthly.rawValue)
         await manager.refreshEntitlements()
 
-        XCTAssertFalse(manager.isSubscribed)
+        XCTAssertFalse(manager.isProUser)
         XCTAssertTrue(manager.purchasedProductIDs.isEmpty)
         XCTAssertNil(manager.activeProductID)
     }
@@ -156,13 +156,13 @@ final class SubscriptionManagerTests: XCTestCase {
         await manager.loadProducts()
         let monthly = try XCTUnwrap(manager.product(for: .monthly))
         try await manager.purchase(monthly)
-        XCTAssertTrue(manager.isSubscribed)
+        XCTAssertTrue(manager.isProUser)
 
         let transaction = try testTransaction(for: .monthly)
         try session.refundTransaction(identifier: transaction.identifier)
         await manager.refreshEntitlements()
 
-        XCTAssertFalse(manager.isSubscribed)
+        XCTAssertFalse(manager.isProUser)
     }
 
     // MARK: - Restore
@@ -172,15 +172,15 @@ final class SubscriptionManagerTests: XCTestCase {
         await originalManager.loadProducts()
         let yearly = try XCTUnwrap(originalManager.product(for: .yearly))
         try await originalManager.purchase(yearly)
-        XCTAssertTrue(originalManager.isSubscribed)
+        XCTAssertTrue(originalManager.isProUser)
 
         // 再インストール・機種変更を想定し、ローカルキャッシュを持たない新しいマネージャーで復元する。
         let reinstalledManager = makeManager()
-        XCTAssertFalse(reinstalledManager.isSubscribed)
+        XCTAssertFalse(reinstalledManager.isProUser)
 
         try await reinstalledManager.restorePurchases()
 
-        XCTAssertTrue(reinstalledManager.isSubscribed)
+        XCTAssertTrue(reinstalledManager.isProUser)
         XCTAssertEqual(reinstalledManager.activeProductID, SubscriptionProductID.yearly.rawValue)
     }
 
@@ -189,7 +189,69 @@ final class SubscriptionManagerTests: XCTestCase {
 
         try await manager.restorePurchases()
 
-        XCTAssertFalse(manager.isSubscribed)
+        XCTAssertFalse(manager.isProUser)
+        XCTAssertTrue(manager.purchasedProductIDs.isEmpty)
+    }
+
+    // MARK: - Ad Banner Visibility
+    // AdContainerViewは`SubscriptionManager.isAdBannerVisible`を購読して広告バナーの表示・非表示と
+    // それに伴うframe(height:)の余白（AdBannerView.height / 0）を切り替える。SwiftUIレンダリングは
+    // 検証できないため、その判定ロジック自体（isAdBannerVisible）が購読状態と正しく連動することを検証する。
+
+    func testAdBannerIsVisibleForFreeUser() async throws {
+        let manager = makeManager()
+
+        XCTAssertFalse(manager.isProUser)
+        XCTAssertTrue(manager.isAdBannerVisible, "無料ユーザーには広告バナーが表示されるべき")
+    }
+
+    func testAdBannerBecomesHiddenAfterPurchase() async throws {
+        let manager = makeManager()
+        await manager.loadProducts()
+        let monthly = try XCTUnwrap(manager.product(for: .monthly))
+
+        try await manager.purchase(monthly)
+
+        XCTAssertTrue(manager.isProUser)
+        XCTAssertFalse(manager.isAdBannerVisible, "Pro購読済みユーザーには広告バナーが表示されるべきではない")
+    }
+
+    func testAdBannerReappearsAfterSubscriptionExpires() async throws {
+        let manager = makeManager()
+        await manager.loadProducts()
+        let monthly = try XCTUnwrap(manager.product(for: .monthly))
+        try await manager.purchase(monthly)
+        XCTAssertFalse(manager.isAdBannerVisible)
+
+        try session.expireSubscription(productIdentifier: SubscriptionProductID.monthly.rawValue)
+        await manager.refreshEntitlements()
+
+        XCTAssertFalse(manager.isProUser)
+        XCTAssertTrue(manager.isAdBannerVisible, "購読が失効したら広告バナーの表示が復活するべき（スクロール領域の余白も再確保される）")
+    }
+
+    // MARK: - Preview Factory
+    // SwiftUI PreviewsでProユーザー状態を安全に再現するためのpreview(isProUser:)が、
+    // StoreKitへ問い合わせて非同期に値を上書きしないことを検証する。
+
+    func testPreviewFactoryProducesSubscribedStateWithoutOverridingAsync() async throws {
+        let manager = SubscriptionManager.preview(isProUser: true)
+
+        XCTAssertTrue(manager.isProUser)
+        XCTAssertFalse(manager.isAdBannerVisible)
+        XCTAssertEqual(manager.purchasedProductIDs, [SubscriptionProductID.monthly.rawValue])
+
+        // autoRefreshOnInit: false のため、initで起動したTaskによる非同期上書きは発生しないはず。
+        // 実際にTaskがスケジュールされていないことを、十分な猶予を与えたうえで確認する。
+        try await Task.sleep(nanoseconds: 200_000_000)
+        XCTAssertTrue(manager.isProUser, "preview(isProUser:)で注入した状態が非同期リフレッシュで上書きされてはならない")
+    }
+
+    func testPreviewFactoryProducesUnsubscribedState() {
+        let manager = SubscriptionManager.preview(isProUser: false)
+
+        XCTAssertFalse(manager.isProUser)
+        XCTAssertTrue(manager.isAdBannerVisible)
         XCTAssertTrue(manager.purchasedProductIDs.isEmpty)
     }
 }

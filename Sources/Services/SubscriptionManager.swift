@@ -43,7 +43,7 @@ final class SubscriptionManager {
 
     /// StoreKitへの問い合わせ前でも直近の購読状態を即座にUIへ反映するためのローカルキャッシュ。
     /// 正としては扱わず、起動時・Transaction更新時に必ずStoreKitの実体（Transaction.currentEntitlements）で上書きする。
-    private(set) var isSubscribed: Bool
+    private(set) var isProUser: Bool
 
     /// 現在有効なプランのプロダクトID（複数同時購読は想定しないため単一値）。設定画面での表示用。
     private(set) var activeProductID: String?
@@ -55,11 +55,15 @@ final class SubscriptionManager {
     private let userDefaults: UserDefaults
     private static let isProCacheKey = "com.pdfone.subscription.isProCache"
 
-    init(userDefaults: UserDefaults = .standard) {
+    /// - Parameter autoRefreshOnInit: `false`にすると起動時のプロダクト取得/エンタイトルメント再計算を行わない。
+    ///   StoreKitへの実問い合わせができないPreview環境で、注入した購読状態が非同期に上書きされるのを防ぐためのもの。
+    init(userDefaults: UserDefaults = .standard, autoRefreshOnInit: Bool = true) {
         self.userDefaults = userDefaults
-        isSubscribed = userDefaults.bool(forKey: Self.isProCacheKey)
+        isProUser = userDefaults.bool(forKey: Self.isProCacheKey)
 
         _ = listenForTransactionUpdates()
+
+        guard autoRefreshOnInit else { return }
 
         Task {
             await loadProducts()
@@ -135,11 +139,11 @@ final class SubscriptionManager {
         }
 
         purchasedProductIDs = activeProductIDs
-        isSubscribed = !activeProductIDs.isEmpty
+        isProUser = !activeProductIDs.isEmpty
         activeProductID = latestProductID
         activeExpirationDate = latestExpirationDate
         isInIntroductoryOffer = latestIsIntroductory
-        userDefaults.set(isSubscribed, forKey: Self.isProCacheKey)
+        userDefaults.set(isProUser, forKey: Self.isProCacheKey)
     }
 
     private func listenForTransactionUpdates() -> Task<Void, Never> {
@@ -156,6 +160,9 @@ final class SubscriptionManager {
         products.first { $0.id == id.rawValue }
     }
 
+    /// 広告バナーを表示すべきかどうか。無料ユーザーにのみ表示する。
+    var isAdBannerVisible: Bool { !isProUser }
+
     private nonisolated static func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .unverified:
@@ -165,3 +172,16 @@ final class SubscriptionManager {
         }
     }
 }
+
+#if DEBUG
+extension SubscriptionManager {
+    /// SwiftUI Previews専用。StoreKitへ問い合わせず、指定した購読状態を確定させたインスタンスを返す。
+    static func preview(isProUser: Bool) -> SubscriptionManager {
+        let defaults = UserDefaults(suiteName: "preview.subscription.\(UUID().uuidString)")!
+        let manager = SubscriptionManager(userDefaults: defaults, autoRefreshOnInit: false)
+        manager.purchasedProductIDs = isProUser ? [SubscriptionProductID.monthly.rawValue] : []
+        manager.isProUser = isProUser
+        return manager
+    }
+}
+#endif

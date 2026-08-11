@@ -83,7 +83,7 @@ final class PaywallViewModel {
 
         do {
             try await subscriptionManager.restorePurchases()
-            if !subscriptionManager.isSubscribed {
+            if !subscriptionManager.isProUser {
                 message = "復元できる購入が見つかりませんでした。"
             }
         } catch {

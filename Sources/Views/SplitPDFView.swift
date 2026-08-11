@@ -79,6 +79,8 @@ struct SplitPDFView: View {
             Section("分割範囲") {
                 TextField("例: 1-3, 4-5", text: $viewModel.rangeText)
                     .keyboardType(.numbersAndPunctuation)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
 
                 Text("カンマ区切りでページ範囲を指定してください。")
                     .font(.caption)
