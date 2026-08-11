@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ToolsView: View {
     @State private var viewModel = ToolsViewModel()
+    @Environment(SubscriptionManager.self) private var subscriptionManager
+    @State private var isShowingPaywall = false
 
     private let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
 
@@ -10,8 +12,11 @@ struct ToolsView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach(viewModel.availableTools) { tool in
-                        ToolCardView(tool: tool) {
-                            viewModel.open(tool.route)
+                        ToolCardView(
+                            tool: tool,
+                            isLocked: isLocked(tool)
+                        ) {
+                            open(tool)
                         }
                     }
 
@@ -26,6 +31,21 @@ struct ToolsView: View {
             .navigationDestination(for: ToolRoute.self) { route in
                 destination(for: route)
             }
+        }
+        .sheet(isPresented: $isShowingPaywall) {
+            PaywallView()
+        }
+    }
+
+    private func isLocked(_ tool: ToolItem) -> Bool {
+        tool.isPro && !subscriptionManager.isSubscribed
+    }
+
+    private func open(_ tool: ToolItem) {
+        if isLocked(tool) {
+            isShowingPaywall = true
+        } else {
+            viewModel.open(tool.route)
         }
     }
 
@@ -62,4 +82,5 @@ struct ToolsView: View {
 
 #Preview {
     ToolsView()
+        .environment(SubscriptionManager())
 }

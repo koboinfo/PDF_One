@@ -6,8 +6,19 @@ struct OCRView: View {
     @State private var isShowingImporter = false
     @State private var isShowingShareSheet = false
     @State private var toast: ToastData?
+    @Environment(SubscriptionManager.self) private var subscriptionManager
 
     var body: some View {
+        Group {
+            if subscriptionManager.isSubscribed {
+                toolContent
+            } else {
+                PaywallView()
+            }
+        }
+    }
+
+    private var toolContent: some View {
         BaseToolView(
             title: "TXT抽出/OCR",
             helpText: "PDFからテキストを抽出します。コピーやTXTファイルとしての保存ができます。"
@@ -111,4 +122,5 @@ struct OCRView: View {
 
 #Preview {
     OCRView()
+        .environment(SubscriptionManager())
 }

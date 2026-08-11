@@ -4,12 +4,23 @@ import UniformTypeIdentifiers
 struct OfficeToPDFView: View {
     @State private var viewModel = OfficeToPDFViewModel()
     @State private var isShowingImporter = false
+    @Environment(SubscriptionManager.self) private var subscriptionManager
 
     private var officeContentTypes: [UTType] {
         ["docx", "doc", "xlsx", "xls", "pptx", "ppt"].compactMap { UTType(filenameExtension: $0) }
     }
 
     var body: some View {
+        Group {
+            if subscriptionManager.isSubscribed {
+                toolContent
+            } else {
+                PaywallView()
+            }
+        }
+    }
+
+    private var toolContent: some View {
         BaseToolView(
             title: "Word/Excel/PPT→PDF",
             helpText: "Word・Excel・PowerPoint形式のファイルをPDFに変換します。"
@@ -104,4 +115,5 @@ struct OfficeToPDFView: View {
 
 #Preview {
     OfficeToPDFView()
+        .environment(SubscriptionManager())
 }

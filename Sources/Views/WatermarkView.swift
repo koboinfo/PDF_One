@@ -4,8 +4,19 @@ import UniformTypeIdentifiers
 struct WatermarkView: View {
     @State private var viewModel = WatermarkViewModel()
     @State private var isShowingImporter = false
+    @Environment(SubscriptionManager.self) private var subscriptionManager
 
     var body: some View {
+        Group {
+            if subscriptionManager.isSubscribed {
+                toolContent
+            } else {
+                PaywallView()
+            }
+        }
+    }
+
+    private var toolContent: some View {
         BaseToolView(
             title: "透かし",
             helpText: "PDFの各ページに透かしテキストを追加します。"
@@ -94,4 +105,5 @@ struct WatermarkView: View {
 
 #Preview {
     WatermarkView()
+        .environment(SubscriptionManager())
 }

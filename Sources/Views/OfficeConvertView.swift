@@ -4,8 +4,19 @@ import UniformTypeIdentifiers
 struct OfficeConvertView: View {
     @State private var viewModel = OfficeConvertViewModel()
     @State private var isShowingImporter = false
+    @Environment(SubscriptionManager.self) private var subscriptionManager
 
     var body: some View {
+        Group {
+            if subscriptionManager.isSubscribed {
+                toolContent
+            } else {
+                PaywallView()
+            }
+        }
+    }
+
+    private var toolContent: some View {
         BaseToolView(
             title: "PDF→Word/Excel/PPT",
             helpText: "PDFをWord・Excel・PowerPoint形式に変換します。"
@@ -102,4 +113,5 @@ struct OfficeConvertView: View {
 
 #Preview {
     OfficeConvertView()
+        .environment(SubscriptionManager())
 }

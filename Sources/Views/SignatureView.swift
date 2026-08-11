@@ -6,8 +6,19 @@ struct SignatureView: View {
     @State private var isShowingImporter = false
     @State private var isShowingDrawingSheet = false
     @State private var isShowingShareSheet = false
+    @Environment(SubscriptionManager.self) private var subscriptionManager
 
     var body: some View {
+        Group {
+            if subscriptionManager.isSubscribed {
+                toolContent
+            } else {
+                PaywallView()
+            }
+        }
+    }
+
+    private var toolContent: some View {
         BaseToolView(
             title: "PDFに署名",
             helpText: "手書きの署名を描いてPDFの好きな位置に配置できます。"
@@ -128,4 +139,5 @@ struct SignatureView: View {
 
 #Preview {
     SignatureView()
+        .environment(SubscriptionManager())
 }
