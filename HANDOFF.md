@@ -1,4 +1,4 @@
-# PDF One — 開発状況引き継ぎメモ（2026-08-11 09:06時点）
+# PDF One — 開発状況引き継ぎメモ（2026-08-11 09:52時点）
 
 ## プロジェクトの場所
 - **実体パス**: `~/Desktop/PDF_One`（2026-08-11に`MyFirstApp`からリネーム。旧名時代のバックアップが`~/Desktop/MyFirstApp_backup`に残っている・非gitフォルダ）
@@ -27,7 +27,13 @@
   16. プライバシーポリシー・利用規約にサブスクリプション条項を追加
   17. 永続保存機能・キャッシュ削除のテストを追加
   18. App Store提出用のデザイン資料・QAチェックリストを追加
-- **未コミットの変更なし**（本ファイルの更新を除く）。
+- **未コミットの変更あり**（2026-08-11 09:07〜09:5x、並行セッションで追加。詳細は下記「サブスクリプション機能」節）:
+  - `ToolsView.swift`ほか課金ゲート配線一式（`ToolsView`/`SettingsView`/Pro対象5View/`PDF_OneApp.swift`/`MainTabView.swift`）
+  - `Tests/SubscriptionManagerTests.swift`（新規、StoreKitTestベース10件）
+  - `docs/qa/subscription-verification-checklist.md`（新規）
+  - `docs/qa/faq-support.md`・`docs/app-store-metadata.md`のサブスク関連更新
+  - `project.pbxproj` / `project.yml`反映（`xcodegen generate`済み）
+  - まだコミットしていない。次回セッションはコミットするかどうかの判断から。
 
 ## 実装済み機能（11ツール、すべて実ロジック実装済み）
 1. PDF結合（MergeView）
@@ -37,10 +43,10 @@
 5. PDF→JPG変換（PDFToJPGView）
 6. PDF分割（SplitPDFView）
 7. パスワード設定・解除（ProtectPDFView）
-8. 電子署名（SignatureView）— **Pro候補としてタグ付け済み（後述）**
-9. OCR（OCRView）— **Pro候補としてタグ付け済み**
-10. 透かし（WatermarkView）— **Pro候補としてタグ付け済み**
-11. Office形式変換（OfficeConvertView、PDF↔Word/Excel/PowerPoint双方向）— **Pro候補としてタグ付け済み**。リッチテキスト（bold/italic/フォントサイズ/配置）・表構造（tbl/tr/tc）のパースに対応し変換精度を向上。OOXML Zip展開にzip bomb対策（展開後サイズ上限・圧縮率上限）を追加。
+8. 電子署名（SignatureView）— **Pro限定。課金ゲート配線済み（後述、未コミット）**
+9. OCR（OCRView）— **Pro限定。課金ゲート配線済み**
+10. 透かし（WatermarkView）— **Pro限定。課金ゲート配線済み**
+11. Office形式変換（OfficeConvertView=PDF→Office、OfficeToPDFView=Office→PDF、双方向で別画面）— **いずれもPro限定。課金ゲート配線済み**。リッチテキスト（bold/italic/フォントサイズ/配置）・表構造（tbl/tr/tc）のパースに対応し変換精度を向上。OOXML Zip展開にzip bomb対策（展開後サイズ上限・圧縮率上限）を追加。
 
 その他: 設定・キャッシュ管理画面（SettingsView、サブディレクトリまで再帰的にキャッシュ削除）、ドキュメントスキャナ（ScannerView）、保存済みファイル一覧（FilesView、検索・並び替え）、プライバシーポリシー/利用規約画面（PrivacyPolicyView/TermsOfServiceView）。
 
@@ -48,30 +54,32 @@
 - `SavedFileStore`が`Documents/SavedPDFs`配下に各ツールの出力を永続保存する（従来はtemporaryDirectoryのみでOS/キャッシュクリアにより消失していた）。全11ツールのViewModelが対応済み。
 - `FilesView`/`FilesViewModel`で保存済みファイルの検索・並び替え（更新日/名前/サイズ）が可能。
 
-## サブスクリプション機能（Pro プラン）— ⚠️ 未完成・機能ゲート未配線
-次回セッションはここから着手すること。
+## サブスクリプション機能（Pro プラン）— 課金ゲート配線済み（未コミット）、StoreKitローカルテストが環境要因でブロック中
 
-- `SubscriptionManager`（StoreKit 2）: `com.pdfone.pro.monthly` / `com.pdfone.pro.yearly`の2プロダクト、`Transaction.updates`監視、現在有効なプランID・失効日・トライアル中かどうかの状態管理まで実装済み。
-- `Subscriptions.storekit`: 両プランに1週間の無料トライアルを設定済み。Testターゲットのスキームにも紐付け済み（`StoreKitTest.framework`参照あり）。
-- `ToolItem.isPro`: 電子署名/OCR/透かし/Office変換の4ツールをPro候補としてマーク済み。
-- `ToolCardView`: `isLocked`パラメータとProバッジ（クラウンアイコン）のUIは実装済み。
-- `PaywallView`/`PaywallViewModel`: プラン選択・購入・復元導線のUI一式は実装済み。
+2026-08-11 09:07〜09:5xの並行セッションで、以前ここに書かれていた「機能ゲート未配線」は解消済み。以下がすべて実装され、ビルド・既存84件テストは独立検証済み（本セッションで再実行し確認）:
 
-**しかし以下が未接続で、実質すべての機能が無料で使える状態のまま**:
-- `ToolsView.swift`が`tool.isPro`・`isLocked`を一切参照していない（Proバッジが表示されない）
-- ツールタップ時に`SubscriptionManager.isSubscribed`をチェックする処理がなく、`PaywallView`もどこからも呼ばれていない
-- アプリのどこにも`PaywallView`・`SubscriptionManager`への参照経路がない（`grep -rl "Paywall\|SubscriptionManager" Sources`で確認済み）
+- `SubscriptionManager`（StoreKit 2）: `com.pdfone.pro.monthly`（月額480円） / `com.pdfone.pro.yearly`（年額4,800円）の2プロダクト、`Transaction.updates`監視、現在有効なプランID・失効日・トライアル中かどうかの状態管理。
+- `Subscriptions.storekit`: 両プランに7日間の無料トライアルを設定済み。
+- `ToolItem.isPro`: 電子署名/OCR/透かし/PDF→Office/Office→PDFの計5ツールをPro指定。
+- `ToolCardView`: `isLocked`パラメータとProバッジ（クラウンアイコン）のUI。
+- `PaywallView`/`PaywallViewModel`: プラン選択・購入・復元導線のUI一式。
+- **配線本体**: `ToolsView.swift`がタップ時に`tool.isPro && !isSubscribed`を判定し`PaywallView`をシート表示、購読済みならそのまま遷移。加えてPro対象5View自身も`isSubscribed`を直接参照し、未購読なら`body`をまるごと`PaywallView`に差し替える二重ガード（`ToolsView`を経由しない直接遷移が将来増えても安全なように）。
+- `SettingsView.swift`: サブスクリプションセクション新設（プラン名・トライアル状態・次回更新日表示、「サブスクリプションを管理」→App Store設定、「購入を復元」、「Proにアップグレード」）。
+- `docs/app-store-metadata.md`: 概要文にPro節を追記、価格・トライアル日数を確定として記載（本セッションで反映）。
+
+**ブロッカー**: `Tests/SubscriptionManagerTests.swift`（`StoreKitTest`ベース、購入/トライアル/キャンセル/失効/返金/復元を検証する10件）を新規作成したが、この実行環境では`SKTestSession`生成時に`SKInternalErrorDomain Code=3`が発生し**全件実行不能**。調査の結果、macOS側の`storekitagent`/`amsengagementd`デーモンがサンドボックス拒否を受けており、アプリ側コード・テストコード・`Subscriptions.storekit`の設定には問題がないことを確認済み（詳細・再現手順は[docs/qa/subscription-verification-checklist.md](docs/qa/subscription-verification-checklist.md)）。Xcode GUIでの`Cmd+U`実行、またはApp Store.appでのサインイン確認・Mac再起動・実機でのテストのいずれかで解消する見込み。
 
 ## 次にやるべきこと（優先順）
-1. **課金ゲートの配線**: `ToolsView.swift`で`tool.isPro && !subscriptionManager.isSubscribed`の場合に`PaywallView`をシート表示し、購読済みなら通常通り遷移するようにする。`ToolCardView`への`isLocked: tool.isPro && !isSubscribed`の受け渡しも必要。
-2. **StoreKitテスト設定の動作確認**: `Subscriptions.storekit`をXcodeスキームで実行し、ローカルStoreKitテスト環境で購入・復元・トライアルフローが正しく動くか確認する。
-3. **`docs/app-store-metadata.md`のサブスクリプション節を確定**: 価格（月額/年額）・無料トライアル日数（`Subscriptions.storekit`は1週間で設定済みなのでこれに合わせるか要確認）をApp Store Connect側の設定と一致させ、概要文に反映する。`docs/qa/submission-readiness-report.md`に詳細あり。
-4. `PDFService.inspect(url:)`の実装要否の判断（未使用なら削除、使うなら実装。`fatalError`のまま）
-5. 実機での動作確認（これまでの確認はシミュレータのみ）
+1. **未コミットの変更をコミットするか判断**: 課金ゲート配線一式・新規テスト・ドキュメント更新（本ファイル冒頭の一覧参照）がまだ未コミット。内容確認後にコミットする。
+2. **StoreKitローカルテストの実行環境を解消**: 上記ブロッカーの対応（Xcode GUIで`Cmd+U`、Mac再起動、または実機）。10件のテストをPassさせる。
+3. **手動動作確認**: [docs/qa/subscription-verification-checklist.md](docs/qa/subscription-verification-checklist.md)の「4. 手動動作確認チェックリスト」（購入フロー・トライアル・キャンセル・復元・UI導線）をXcode GUIまたは実機で消化する。
+4. 実機での動作確認（これまでの確認はシミュレータのみ）。
+5. App Store Connect側で実際の`com.pdfone.pro.monthly` / `com.pdfone.pro.yearly`商品とトライアルオファーを設定し、Sandboxアカウントでの実購入テスト。
 6. 上記が完了したらApp Store Connectへの実際の申請作業（`docs/app-store-metadata.md`・`docs/qa/`配下は準備が進んでいる状態）。
 
 ## テスト状況
-- 直近の確認済みビルド: 2026-08-11 09:05、`xcodegen generate` → `DESTINATION="platform=iOS Simulator,name=iPhone 17 Pro" ./build.sh`によりビルド成功・**全84件テスト成功**を確認済み（コミット18件すべて反映後の状態）。
+- 2026-08-11 09:5x、`xcodegen generate` → `xcodebuild build` → `xcodebuild -skip-testing:PDF_OneTests/SubscriptionManagerTests test`でビルド成功・**既存84件テスト全成功**を独立確認済み（未コミットの課金ゲート配線反映後の状態）。
+- `SubscriptionManagerTests`（新規10件）は上記ブロッカーによりこの環境では未実行。
 
 ## ブランディング・アセット
 - アプリアイコン一式は生成済み（`AppIcon_Export/`配下にiOS/Android/汎用サイズを出力済み、ベクター定義は`AppIconView.swift`）。
