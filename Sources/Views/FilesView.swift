@@ -30,6 +30,8 @@ struct FilesView: View {
                     .listStyle(.plain)
                 }
             }
+            .tabBarClearance()
+            .withTopAdBanner()
             .navigationTitle("ファイル")
             .searchable(text: $viewModel.searchText, prompt: "ファイル名で検索")
             .textInputAutocapitalization(.never)

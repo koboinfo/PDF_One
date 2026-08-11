@@ -34,10 +34,14 @@ struct BaseToolView<Content: View, Footer: View>: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .applyingDrop(onDropProviders)
             footer
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .padding(.bottom, 8)
+                .padding(.horizontal, LayoutConstants.screenHorizontalPadding)
+                .padding(.top, LayoutConstants.toolFooterTopPadding)
+                .padding(.bottom, LayoutConstants.toolFooterBottomPadding)
         }
+        // ツール詳細はToolsViewのNavigationStackにプッシュされるため、タブバーが下端に重なる。
+        // ここで一括してクリアランスを確保することで、実行ボタンをフッターに置く画面（結合など）は
+        // フッターごと押し上がり、Form内に置く画面（圧縮など）は最終セクションまでスクロールできる。
+        .tabBarClearance()
         .background(AppBackground())
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -65,9 +69,9 @@ struct BaseToolView<Content: View, Footer: View>: View {
                 Color.clear.frame(width: 36, height: 36)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
+        .padding(.horizontal, LayoutConstants.screenHorizontalPadding)
+        .padding(.top, LayoutConstants.toolHeaderTopPadding)
+        .padding(.bottom, LayoutConstants.toolHeaderBottomPadding)
     }
 }
 

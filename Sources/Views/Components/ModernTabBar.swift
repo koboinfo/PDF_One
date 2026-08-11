@@ -2,6 +2,10 @@ import SwiftUI
 
 /// アイコン下の小さなドットで選択状態を示す、フローティング型のミニマルなタブバー。
 struct ModernTabBar: View {
+    /// バーの実高。下の`body`の構成から導出した固定値で、レイアウト基準値（`LayoutConstants`）が参照する。
+    /// 内訳: アイコン22 + spacing5 + インジケータ4 = 31、ボタンの縦padding 6×2 = +12、HStackの縦padding 10×2 = +20。
+    static let height: CGFloat = 63
+
     @Binding var selection: AppTab
 
     var body: some View {

@@ -19,6 +19,8 @@ struct ScannerView: View {
                     emptyStateView
                 }
             }
+            .tabBarClearance()
+            .withTopAdBanner()
             .navigationTitle("スキャナー")
             .overlay {
                 if viewModel.isProcessing {

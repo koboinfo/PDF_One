@@ -7,6 +7,8 @@ struct HomeView: View {
                 systemImage: "house",
                 title: "ホーム画面は準備中です"
             )
+            .tabBarClearance()
+            .withTopAdBanner()
             .navigationTitle("ホーム")
         }
     }

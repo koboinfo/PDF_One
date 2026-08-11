@@ -16,7 +16,7 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section("サブスクリプション") {
-                    if subscriptionManager.isSubscribed {
+                    if subscriptionManager.isProUser {
                         LabeledContent("プラン") {
                             Text(planLabel)
                                 .foregroundStyle(.secondary)
@@ -115,6 +115,8 @@ struct SettingsView: View {
                     .tint(.primary)
                 }
             }
+            .tabBarClearance()
+            .withTopAdBanner()
             .navigationTitle("設定")
             .task {
                 await viewModel.calculateCacheSize()
@@ -157,7 +159,7 @@ struct SettingsView: View {
 
         do {
             try await subscriptionManager.restorePurchases()
-            viewModel.toast = subscriptionManager.isSubscribed
+            viewModel.toast = subscriptionManager.isProUser
                 ? ToastData(style: .success, message: "購入を復元しました")
                 : ToastData(style: .error, message: "復元できる購入が見つかりませんでした")
         } catch {
