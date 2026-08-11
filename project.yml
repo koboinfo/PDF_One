@@ -69,8 +69,10 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: Tests
+      - path: Subscriptions.storekit
     dependencies:
       - target: PDF_One
+      - sdk: StoreKitTest.framework
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.pdfone.PDFOneTests
