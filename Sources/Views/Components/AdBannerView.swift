@@ -15,7 +15,7 @@ struct AdPlaceholderContent: View {
                     .strokeBorder(Color.secondary.opacity(0.25), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
             )
             .overlay(
-                Text("広告（準備中）")
+                Text(String(localized: "広告（準備中）"))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             )
@@ -65,7 +65,7 @@ struct AdBannerView: View {
     }
 }
 
-#Preview("無料ユーザー") {
+#Preview(String(localized: "無料ユーザー")) {
     VStack {
         Spacer()
         AdBannerView()
@@ -74,7 +74,7 @@ struct AdBannerView: View {
     .environment(SubscriptionManager.preview(isProUser: false))
 }
 
-#Preview("Proユーザー") {
+#Preview(String(localized: "Proユーザー")) {
     VStack {
         Spacer()
         AdBannerView()

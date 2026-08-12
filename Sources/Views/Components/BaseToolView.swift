@@ -123,16 +123,16 @@ private extension View {
 #Preview {
     NavigationStack {
         BaseToolView(
-            title: "サンプルツール",
-            helpText: "ここにツールの使い方の説明が入ります。"
+            title: String(localized: "サンプルツール"),
+            helpText: String(localized: "ここにツールの使い方の説明が入ります。")
         ) {
             EmptyStateView(
                 systemImage: "doc.on.doc",
-                title: "ファイルをドラッグ＆ドロップ、\nまたはタップして選択してください",
-                actionTitle: "ファイルを選択"
+                title: String(localized: "ファイルをドラッグ＆ドロップ、\nまたはタップして選択してください"),
+                actionTitle: String(localized: "ファイルを選択")
             ) {}
         } footer: {
-            PrimaryButton(title: "実行する", systemImage: "play.fill", action: {})
+            PrimaryButton(title: String(localized: "実行する"), systemImage: "play.fill", action: {})
         }
     }
 }

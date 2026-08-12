@@ -12,16 +12,16 @@ final class ToolsViewModel {
 
     init() {
         availableTools = [
-            ToolItem(title: "PDF結合", iconType: .merge, route: .merge),
-            ToolItem(title: "画像→PDF", iconType: .imageToPDF, route: .imageToPDF),
-            ToolItem(title: "圧縮", iconType: .compress, route: .compress),
-            ToolItem(title: "ページ編集", iconType: .pageEdit, route: .pageEdit),
+            ToolItem(title: String(localized: "PDF結合"), iconType: .merge, route: .merge),
+            ToolItem(title: String(localized: "画像→PDF"), iconType: .imageToPDF, route: .imageToPDF),
+            ToolItem(title: String(localized: "圧縮"), iconType: .compress, route: .compress),
+            ToolItem(title: String(localized: "ページ編集"), iconType: .pageEdit, route: .pageEdit),
             ToolItem(title: "PDF→JPG", iconType: .pdfToJPG, route: .pdfToJPG),
-            ToolItem(title: "PDF分割", iconType: .splitPDF, route: .splitPDF),
-            ToolItem(title: "パスワード設定", iconType: .protectPDF, route: .protectPDF),
-            ToolItem(title: "電子署名", iconType: .signature, route: .signature, isPro: true),
+            ToolItem(title: String(localized: "PDF分割"), iconType: .splitPDF, route: .splitPDF),
+            ToolItem(title: String(localized: "パスワード設定"), iconType: .protectPDF, route: .protectPDF),
+            ToolItem(title: String(localized: "電子署名"), iconType: .signature, route: .signature, isPro: true),
             ToolItem(title: "OCR", iconType: .ocr, route: .ocr, isPro: true),
-            ToolItem(title: "透かし", iconType: .watermark, route: .watermark, isPro: true),
+            ToolItem(title: String(localized: "透かし"), iconType: .watermark, route: .watermark, isPro: true),
             ToolItem(title: "PDF→Office", iconType: .pdfToWord, route: .officeConvert, isPro: true),
             ToolItem(title: "Office→PDF", iconType: .officeToPDF, route: .officeToPDF, isPro: true)
         ]

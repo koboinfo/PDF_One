@@ -56,15 +56,15 @@ final class SignatureViewModel {
 
     func applySignature() async {
         guard let sourceURL else {
-            errorMessage = "署名対象のPDFファイルを選択してください。"
+            errorMessage = String(localized: "署名対象のPDFファイルを選択してください。")
             return
         }
         guard let signatureImage else {
-            errorMessage = "署名を描画してください。"
+            errorMessage = String(localized: "署名を描画してください。")
             return
         }
         guard pageSize.width > 0, pageSize.height > 0 else {
-            errorMessage = "PDFページを読み込めませんでした。"
+            errorMessage = String(localized: "PDFページを読み込めませんでした。")
             return
         }
 
@@ -103,7 +103,7 @@ final class SignatureViewModel {
         signaturePosition = CGPoint(x: 20, y: 20)
 
         guard let sourceURL, let document = PDFDocument(url: sourceURL), document.pageCount > 0 else {
-            errorMessage = sourceURL != nil ? "PDFファイルを読み込めませんでした。" : nil
+            errorMessage = sourceURL != nil ? String(localized: "PDFファイルを読み込めませんでした。") : nil
             document = nil
             pageCount = 0
             pageThumbnail = nil

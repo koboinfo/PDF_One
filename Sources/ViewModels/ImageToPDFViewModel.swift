@@ -46,7 +46,7 @@ final class ImageToPDFViewModel {
 
     func createPDF() async {
         guard !images.isEmpty else {
-            errorMessage = "変換する画像を選択してください。"
+            errorMessage = String(localized: "変換する画像を選択してください。")
             return
         }
 

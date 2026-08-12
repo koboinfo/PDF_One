@@ -38,5 +38,5 @@ struct NeumorphicProcessingCard: View {
 }
 
 #Preview {
-    NeumorphicProcessingCard(message: "処理中…")
+    NeumorphicProcessingCard(message: String(localized: "処理中…"))
 }

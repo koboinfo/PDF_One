@@ -21,7 +21,7 @@ struct ScannerView: View {
             }
             .tabBarClearance()
             .withTopAdBanner()
-            .navigationTitle("スキャナー")
+            .navigationTitle(String(localized: "スキャナー"))
             .overlay {
                 if viewModel.isProcessing {
                     processingOverlay
@@ -48,7 +48,7 @@ struct ScannerView: View {
             }
         }
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -63,9 +63,9 @@ struct ScannerView: View {
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "camera.viewfinder",
-            title: "書類をスキャンしてPDFを作成します",
-            message: isCameraSupported ? nil : "このデバイスではスキャナーを利用できません。",
-            actionTitle: isCameraSupported ? "スキャンを開始" : nil
+            title: String(localized: "書類をスキャンしてPDFを作成します"),
+            message: isCameraSupported ? nil : String(localized: "このデバイスではスキャナーを利用できません。"),
+            actionTitle: isCameraSupported ? String(localized: "スキャンを開始") : nil
         ) {
             isShowingCamera = true
         }
@@ -76,10 +76,10 @@ struct ScannerView: View {
             PDFPreviewView(url: outputURL)
 
             VStack(spacing: 12) {
-                PrimaryButton(title: "共有する", systemImage: "square.and.arrow.up", style: .bordered) {
+                PrimaryButton(title: String(localized: "共有する"), systemImage: "square.and.arrow.up", style: .bordered) {
                     isShowingShareSheet = true
                 }
-                PrimaryButton(title: "再スキャン", systemImage: "camera.viewfinder") {
+                PrimaryButton(title: String(localized: "再スキャン"), systemImage: "camera.viewfinder") {
                     isShowingCamera = true
                 }
             }
@@ -95,7 +95,7 @@ struct ScannerView: View {
             VStack(spacing: 16) {
                 ProgressView()
                     .controlSize(.large)
-                Text("PDFを作成中…")
+                Text(String(localized: "PDFを作成中…"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

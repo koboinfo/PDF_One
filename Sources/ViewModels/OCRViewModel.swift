@@ -31,7 +31,7 @@ final class OCRViewModel {
 
     func extractText() async {
         guard let selectedURL else {
-            errorMessage = "テキストを抽出するPDFファイルを選択してください。"
+            errorMessage = String(localized: "テキストを抽出するPDFファイルを選択してください。")
             return
         }
 
@@ -40,6 +40,7 @@ final class OCRViewModel {
         errorMessage = nil
         extractedText = ""
         savedTextFileURL = nil
+        AdMobInterstitialManager.shared.preloadAd()
 
         do {
             let text = try await ocrService.extractText(from: selectedURL) { [weak self] value in
@@ -49,7 +50,7 @@ final class OCRViewModel {
             }
             extractedText = text
             if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                errorMessage = "テキストを検出できませんでした。"
+                errorMessage = String(localized: "テキストを検出できませんでした。")
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -73,7 +74,7 @@ final class OCRViewModel {
             try extractedText.write(to: destinationURL, atomically: true, encoding: .utf8)
             savedTextFileURL = destinationURL
         } catch {
-            errorMessage = "テキストファイルの保存に失敗しました。"
+            errorMessage = String(localized: "テキストファイルの保存に失敗しました。")
         }
     }
 }

@@ -25,15 +25,15 @@ final class ProtectPDFViewModel {
 
     func protectPDF() async {
         guard let selectedURL else {
-            errorMessage = "保護するPDFファイルを選択してください。"
+            errorMessage = String(localized: "保護するPDFファイルを選択してください。")
             return
         }
         guard !password.isEmpty else {
-            errorMessage = "パスワードを入力してください。"
+            errorMessage = String(localized: "パスワードを入力してください。")
             return
         }
         guard password == confirmPassword else {
-            errorMessage = "パスワードが一致しません。"
+            errorMessage = String(localized: "パスワードが一致しません。")
             return
         }
 

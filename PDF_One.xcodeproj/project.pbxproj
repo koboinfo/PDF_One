@@ -10,12 +10,14 @@
 		011886EE1D86229A45A35386 /* PDFToJPGView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A319BBD16E191694D151A6D6 /* PDFToJPGView.swift */; };
 		02563E547D62CE9627D69061 /* OfficeDocumentBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E79A594BBC632FAA935C7F8 /* OfficeDocumentBuilder.swift */; };
 		07A592583EB263E38457056E /* SplitPDFView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EBCA6D7E0AF26F463AEE7B9 /* SplitPDFView.swift */; };
+		0B82EA35D35BE3D5DB56CAE2 /* NativeAdPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CFD318EE842600D2F9CD46 /* NativeAdPlaceholderView.swift */; };
 		0D4303C4B80266EFDC148C67 /* ModernTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDB146B104F5C62813F6905D /* ModernTabBar.swift */; };
 		0D495A236F447B4EA29B4F72 /* OfficePresentationReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A2726DCEDB818B514D0631 /* OfficePresentationReader.swift */; };
 		0E0CFBDDDD1C7740E2138722 /* ToolsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52490619311F2176F598741F /* ToolsViewModel.swift */; };
 		0F6F3B2C878A373582F60E76 /* FilesViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B242F3AB082265F579B21F /* FilesViewModelTests.swift */; };
 		0F8A60627F023F6C09E36A5C /* TopAdBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3227C6E3E2AFB1B993AC4FA6 /* TopAdBannerView.swift */; };
 		0FBEA25D3336090F4B175A5E /* SavedFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4F167C9BE1081D722C6A19 /* SavedFileStore.swift */; };
+		1237217A911CF179837D443E /* QuickActionGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585613BF1594D36F15E8DEE5 /* QuickActionGrid.swift */; };
 		170C99DE07E6451A3D0B846A /* SignatureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D70A1E926BA52F92A013AEB /* SignatureViewModel.swift */; };
 		17A9DB5A352B58E56179822B /* AppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A67A21C8773A31B14A8952DE /* AppIconView.swift */; };
 		199D32F0078C1EEACFA70D9F /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BEE09B048B197E94ED27BE2 /* PaywallView.swift */; };
@@ -46,9 +48,11 @@
 		683334DBF6F75BAE7B53B41A /* OCRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B1F6C5D1F8CECD596FF5F4D /* OCRView.swift */; };
 		69CDEA7235FE0DF5A749E5D8 /* SavedFileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3224C28E21F98224211568 /* SavedFileStoreTests.swift */; };
 		6DD06EDF8B68EACF32C20FC3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 424B95A40CE8720C492510C0 /* SettingsView.swift */; };
+		720C35723A0215B33BC058B3 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 4B791F9D5ABB0D5085B98824 /* Localizable.xcstrings */; };
 		78CE9B74CBD92EFF30A5FBE3 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3612A88DFD0DBFCAAC08B2 /* ActivityView.swift */; };
 		79E54084C66E3CD917337320 /* ImageToPDFView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43E5C1C8EAC1CBE084D3B6E /* ImageToPDFView.swift */; };
 		887AE08CD3F4316B76DA349D /* ProtectPDFViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310CA82FB2D9F37FD9A98485 /* ProtectPDFViewModel.swift */; };
+		8B1AD2548119DC93C4E0B113 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 8B1009D228FFC403DD6AE271 /* GoogleMobileAds */; };
 		8E0463E184B90309667EF362 /* ImageThumbnailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5C458E24C6CB120E34E74A /* ImageThumbnailRow.swift */; };
 		914FF16DBCA1839E17197D1E /* PDF_OneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711E7FFA1E12A1F4FC9F4764 /* PDF_OneApp.swift */; };
 		9462E98B98966DA9B126A532 /* PDFServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D0DBAEAE5C093FE9271467C /* PDFServiceTests.swift */; };
@@ -71,6 +75,7 @@
 		AEFFE4ECB0416697C6AC15FB /* MergeFileListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D4C895A5ED99D6749CCA4 /* MergeFileListView.swift */; };
 		B1F4FE475095F1E0333052C3 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440B73B70C5C5A989EE96005 /* PrimaryButton.swift */; };
 		B382E79ED6C02F35A2188D11 /* OfficeDocumentReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363DD3C8BC534BC87969A29A /* OfficeDocumentReader.swift */; };
+		B42F0BA3E2F5C4F414579D68 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671019A58993D3CEC9292C19 /* HomeViewModel.swift */; };
 		B46EDDA09B2DCBF6E7F97A86 /* PaywallViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8193CD47F8E4F37D15DCDDA /* PaywallViewModel.swift */; };
 		B5B3CEEEB55EBB8ABCF56AB3 /* WatermarkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2579729FB18EB0A18B8FD36 /* WatermarkViewModel.swift */; };
 		B5DBDB4D02D1235C666DADA5 /* SplitPDFViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C6DDD1ED81CB1169A60126 /* SplitPDFViewModel.swift */; };
@@ -92,6 +97,7 @@
 		CA3C4E1DF16AEC8DDD7501E1 /* SignatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E0FD5EFADC6C2648B70A866 /* SignatureView.swift */; };
 		CC7B8102CC442EA46FAB991F /* MergeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFE2BD97C4F1003F5D6FBEA /* MergeView.swift */; };
 		D61FED27A68F5F4EAA8E6BF4 /* FilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E89EA362818A6328C3647AF9 /* FilesView.swift */; };
+		DA8E4F05F43BA4F666E09B07 /* AdMobInterstitialManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811E47F110D094667D7A0E57 /* AdMobInterstitialManager.swift */; };
 		DE7AE49225D8B7159468E839 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F65E7C471DFFDBD55CCADC /* SubscriptionManager.swift */; };
 		E32879C2DA1C60FE45A84196 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3446333B44ED23F6108B4AA5 /* AuthService.swift */; };
 		E3EE604FBA82FC6DBA1638CF /* BaseToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E627D4F6ABFA1B5EA0D1B26A /* BaseToolView.swift */; };
@@ -151,6 +157,7 @@
 		45600BF994DFF6C65EC0AD7C /* ToolsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsViewModelTests.swift; sourceTree = "<group>"; };
 		45A2726DCEDB818B514D0631 /* OfficePresentationReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfficePresentationReader.swift; sourceTree = "<group>"; };
 		4684CC419309D9408276802C /* AdBannerViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdBannerViewTests.swift; sourceTree = "<group>"; };
+		4B791F9D5ABB0D5085B98824 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		4B9B7F044851E2357734F921 /* SignatureDrawingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureDrawingSheet.swift; sourceTree = "<group>"; };
 		4BEE09B048B197E94ED27BE2 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		4D0DBAEAE5C093FE9271467C /* PDFServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFServiceTests.swift; sourceTree = "<group>"; };
@@ -159,10 +166,12 @@
 		54C6DDD1ED81CB1169A60126 /* SplitPDFViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitPDFViewModel.swift; sourceTree = "<group>"; };
 		573354720D2C1493F32B7906 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		581D4C895A5ED99D6749CCA4 /* MergeFileListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergeFileListView.swift; sourceTree = "<group>"; };
+		585613BF1594D36F15E8DEE5 /* QuickActionGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionGrid.swift; sourceTree = "<group>"; };
 		59F3AF25D5F1F2D1656E4484 /* SubscriptionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManagerTests.swift; sourceTree = "<group>"; };
 		6101FB65A5C862247C334E5B /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
 		6348508734B87F638742F339 /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 		647926F3F6899578519D5971 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		671019A58993D3CEC9292C19 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		69658EDC67478459C6EE4166 /* OOXMLRelationships.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OOXMLRelationships.swift; sourceTree = "<group>"; };
 		6AFBD139AF688EDDE85AAEBB /* OOXMLZipWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OOXMLZipWriter.swift; sourceTree = "<group>"; };
 		6DC43BD34B8165943A0EE371 /* PageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageEditView.swift; sourceTree = "<group>"; };
@@ -170,6 +179,7 @@
 		7C4F167C9BE1081D722C6A19 /* SavedFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedFileStore.swift; sourceTree = "<group>"; };
 		7DE435C07202C6AE03A52A97 /* PDFPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPreviewView.swift; sourceTree = "<group>"; };
 		7EBCA6D7E0AF26F463AEE7B9 /* SplitPDFView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitPDFView.swift; sourceTree = "<group>"; };
+		811E47F110D094667D7A0E57 /* AdMobInterstitialManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobInterstitialManager.swift; sourceTree = "<group>"; };
 		885F34E0FB369CFE7F4BF321 /* OfficeSpreadsheetReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfficeSpreadsheetReader.swift; sourceTree = "<group>"; };
 		891A694380F51FA2D54E4686 /* Subscriptions.storekit */ = {isa = PBXFileReference; path = Subscriptions.storekit; sourceTree = "<group>"; };
 		897C4A9B19069D8089FBF1AD /* FilesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesViewModel.swift; sourceTree = "<group>"; };
@@ -188,6 +198,7 @@
 		A67A21C8773A31B14A8952DE /* AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconView.swift; sourceTree = "<group>"; };
 		AA43231E2BF8B6373DF2531A /* ToolCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolCardView.swift; sourceTree = "<group>"; };
 		ABE39FBFD94B31E8847A378F /* SavedFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedFile.swift; sourceTree = "<group>"; };
+		B0CFD318EE842600D2F9CD46 /* NativeAdPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdPlaceholderView.swift; sourceTree = "<group>"; };
 		B591472C4CC7351A3BDB877E /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		C2579729FB18EB0A18B8FD36 /* WatermarkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatermarkViewModel.swift; sourceTree = "<group>"; };
 		C2E16E707ED3388F08B6F87D /* PageThumbnailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageThumbnailCell.swift; sourceTree = "<group>"; };
@@ -234,12 +245,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BEA3DF8531DB0D60830338E0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B1AD2548119DC93C4E0B113 /* GoogleMobileAds in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		01CE8E05D54A7D390FC2DDD9 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4B791F9D5ABB0D5085B98824 /* Localizable.xcstrings */,
 				9CCBAF891E63F01B9F0D2F01 /* App */,
 				2D96B1E5EE91A61E8AA44C5D /* Models */,
 				766CEDCCE9508D79EA33DD49 /* Resources */,
@@ -283,6 +303,7 @@
 		1798C5D34B0F2C61D810ED62 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				811E47F110D094667D7A0E57 /* AdMobInterstitialManager.swift */,
 				3446333B44ED23F6108B4AA5 /* AuthService.swift */,
 				D0490CE84BE36A355E7E1F07 /* ImageSourceResolver.swift */,
 				3528C069FEA8E0358AEC33D8 /* OCRService.swift */,
@@ -331,12 +352,14 @@
 				581D4C895A5ED99D6749CCA4 /* MergeFileListView.swift */,
 				DA3CDF9D58332B1D3ECD8B5B /* ModernSheet.swift */,
 				FDB146B104F5C62813F6905D /* ModernTabBar.swift */,
+				B0CFD318EE842600D2F9CD46 /* NativeAdPlaceholderView.swift */,
 				E374C05104547DF4429C9E16 /* NeumorphicProcessingCard.swift */,
 				D723874D00547540E3BEFA25 /* PageEditGridView.swift */,
 				C2E16E707ED3388F08B6F87D /* PageThumbnailCell.swift */,
 				7DE435C07202C6AE03A52A97 /* PDFPreviewView.swift */,
 				0FBD3FF18E5F42CCC54B8F87 /* PDFToJPGGridView.swift */,
 				440B73B70C5C5A989EE96005 /* PrimaryButton.swift */,
+				585613BF1594D36F15E8DEE5 /* QuickActionGrid.swift */,
 				2B58973BE4E497C97038A945 /* ResultPreviewCard.swift */,
 				962AC333E48A535A23BFA19B /* SignatureCanvasView.swift */,
 				4B9B7F044851E2357734F921 /* SignatureDrawingSheet.swift */,
@@ -372,6 +395,7 @@
 			children = (
 				D615B4EDC7A9D414F8A076CE /* CompressViewModel.swift */,
 				897C4A9B19069D8089FBF1AD /* FilesViewModel.swift */,
+				671019A58993D3CEC9292C19 /* HomeViewModel.swift */,
 				07A3FB70AF35078B74B4D9D4 /* ImageToPDFViewModel.swift */,
 				CD0EDD658E35F99036FAB2C2 /* MergeViewModel.swift */,
 				3BF242D8111A9D1476DE4E78 /* OCRViewModel.swift */,
@@ -463,6 +487,7 @@
 			buildPhases = (
 				0BEFDE9B12D60BFAD84CD0E2 /* Sources */,
 				CBD48664FD780AB0F91DF0B0 /* Resources */,
+				BEA3DF8531DB0D60830338E0 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -470,6 +495,7 @@
 			);
 			name = PDF_One;
 			packageProductDependencies = (
+				8B1009D228FFC403DD6AE271 /* GoogleMobileAds */,
 			);
 			productName = PDF_One;
 			productReference = A4E1706C3EC105914257DDBA /* PDF_One.app */;
@@ -491,10 +517,19 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
+				de,
 				en,
+				es,
+				fr,
+				it,
+				ko,
+				"zh-Hans",
 			);
 			mainGroup = 6EA92B838907E6597E7E49F8;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0526B5E4D6454373156DDBE7 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DD53EEF348D126A44D5365AA /* Products */;
 			projectDirPath = "";
@@ -520,6 +555,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5189624DBBAAEA20B1287F48 /* Assets.xcassets in Resources */,
+				720C35723A0215B33BC058B3 /* Localizable.xcstrings in Resources */,
 				AB2C22E915A5B25C8904C43E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -533,6 +569,7 @@
 			files = (
 				78CE9B74CBD92EFF30A5FBE3 /* ActivityView.swift in Sources */,
 				A7FA01EEC36D67283B925598 /* AdBannerView.swift in Sources */,
+				DA8E4F05F43BA4F666E09B07 /* AdMobInterstitialManager.swift in Sources */,
 				AA56E931F5CF36376471A315 /* AppBackground.swift in Sources */,
 				17A9DB5A352B58E56179822B /* AppIconView.swift in Sources */,
 				2029A79FBE2DB834EE639FD8 /* AppImage.swift in Sources */,
@@ -549,6 +586,7 @@
 				D61FED27A68F5F4EAA8E6BF4 /* FilesView.swift in Sources */,
 				C3399CDD07FB274018940257 /* FilesViewModel.swift in Sources */,
 				1F2FE7D8AAE2A45927C3AA42 /* HomeView.swift in Sources */,
+				B42F0BA3E2F5C4F414579D68 /* HomeViewModel.swift in Sources */,
 				EFD65CDFEF48C349D79CF179 /* ImageSourceResolver.swift in Sources */,
 				8E0463E184B90309667EF362 /* ImageThumbnailRow.swift in Sources */,
 				FC221D64081B810F1023F434 /* ImageToPDFListView.swift in Sources */,
@@ -561,6 +599,7 @@
 				3AB1E0877275DD49049B3B96 /* MergeViewModel.swift in Sources */,
 				F2F4C951ECFD944EA0B0DDDA /* ModernSheet.swift in Sources */,
 				0D4303C4B80266EFDC148C67 /* ModernTabBar.swift in Sources */,
+				0B82EA35D35BE3D5DB56CAE2 /* NativeAdPlaceholderView.swift in Sources */,
 				BDA327E9442B1F843ABD32D9 /* NeumorphicProcessingCard.swift in Sources */,
 				E76336FCAD8C08190895A1DE /* OCRService.swift in Sources */,
 				683334DBF6F75BAE7B53B41A /* OCRView.swift in Sources */,
@@ -592,6 +631,7 @@
 				1F6B5EF9720D16DEBE37964B /* PrivacyPolicyView.swift in Sources */,
 				A8FC946BB339E18B9CE5A93F /* ProtectPDFView.swift in Sources */,
 				887AE08CD3F4316B76DA349D /* ProtectPDFViewModel.swift in Sources */,
+				1237217A911CF179837D443E /* QuickActionGrid.swift in Sources */,
 				EF9894A59F02A15AFBB0726E /* ResultPreviewCard.swift in Sources */,
 				5F9D2D4F5F9CE54D21DFC215 /* SavedFile.swift in Sources */,
 				0FBEA25D3336090F4B175A5E /* SavedFileStore.swift in Sources */,
@@ -876,6 +916,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0526B5E4D6454373156DDBE7 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8B1009D228FFC403DD6AE271 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0526B5E4D6454373156DDBE7 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 14202D1E94E79774B3638AF8 /* Project object */;
 }

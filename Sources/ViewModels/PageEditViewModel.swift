@@ -58,11 +58,11 @@ final class PageEditViewModel {
 
     func saveEditedPDF() async {
         guard let sourceURL else {
-            errorMessage = "編集対象のPDFファイルを選択してください。"
+            errorMessage = String(localized: "編集対象のPDFファイルを選択してください。")
             return
         }
         guard !pageItems.isEmpty else {
-            errorMessage = "PDFには少なくとも1ページ必要です。"
+            errorMessage = String(localized: "PDFには少なくとも1ページ必要です。")
             return
         }
 
@@ -90,13 +90,13 @@ final class PageEditViewModel {
 
     func extractSelectedPages() async {
         guard let sourceURL else {
-            errorMessage = "編集対象のPDFファイルを選択してください。"
+            errorMessage = String(localized: "編集対象のPDFファイルを選択してください。")
             return
         }
 
         let selectedIndices = pageItems.filter(\.isSelected).map(\.originalIndex)
         guard !selectedIndices.isEmpty else {
-            errorMessage = "抽出するページを選択してください。"
+            errorMessage = String(localized: "抽出するページを選択してください。")
             return
         }
 
@@ -122,7 +122,7 @@ final class PageEditViewModel {
         errorMessage = nil
 
         guard let document = PDFDocument(url: url), document.pageCount > 0 else {
-            errorMessage = "PDFファイルを読み込めませんでした。"
+            errorMessage = String(localized: "PDFファイルを読み込めませんでした。")
             pageItems = []
             return
         }

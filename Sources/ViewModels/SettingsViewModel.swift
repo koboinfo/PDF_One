@@ -23,7 +23,7 @@ final class SettingsViewModel {
     var appVersionText: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
-        return "バージョン \(version) (\(build))"
+        return String(localized: "バージョン \(version) (\(build))")
     }
 
     func calculateCacheSize() async {
@@ -47,7 +47,7 @@ final class SettingsViewModel {
 
         cacheSizeBytes = Self.cacheFilesSize(in: temporaryDirectory, fileManager: fileManager)
         isClearingCache = false
-        toast = ToastData(style: .success, message: "キャッシュを削除しました")
+        toast = ToastData(style: .success, message: String(localized: "キャッシュを削除しました"))
     }
 
     /// `temporaryDirectory`配下をサブディレクトリも含めて再帰的に走査し、対象拡張子のファイルURLを返す。

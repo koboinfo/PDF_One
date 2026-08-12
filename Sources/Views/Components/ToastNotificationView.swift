@@ -87,5 +87,5 @@ extension View {
     VStack {
         Spacer()
     }
-    .toast(.constant(ToastData(style: .success, message: "キャッシュを削除しました")))
+    .toast(.constant(ToastData(style: .success, message: String(localized: "キャッシュを削除しました"))))
 }

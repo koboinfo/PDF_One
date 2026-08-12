@@ -35,7 +35,7 @@ extension View {
     }
 }
 
-#Preview("無料ユーザー") {
+#Preview(String(localized: "無料ユーザー")) {
     NavigationStack {
         ScrollView {
             ForEach(0..<20) { index in
@@ -45,12 +45,12 @@ extension View {
             }
         }
         .withTopAdBanner()
-        .navigationTitle("ツール")
+        .navigationTitle(String(localized: "ツール"))
     }
     .environment(SubscriptionManager.preview(isProUser: false))
 }
 
-#Preview("Proユーザー") {
+#Preview(String(localized: "Proユーザー")) {
     NavigationStack {
         ScrollView {
             ForEach(0..<20) { index in
@@ -60,7 +60,7 @@ extension View {
             }
         }
         .withTopAdBanner()
-        .navigationTitle("ツール")
+        .navigationTitle(String(localized: "ツール"))
     }
     .environment(SubscriptionManager.preview(isProUser: true))
 }

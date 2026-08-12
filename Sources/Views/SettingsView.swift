@@ -15,22 +15,22 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("サブスクリプション") {
+                Section(String(localized: "サブスクリプション")) {
                     if subscriptionManager.isProUser {
-                        LabeledContent("プラン") {
+                        LabeledContent(String(localized: "プラン")) {
                             Text(planLabel)
                                 .foregroundStyle(.secondary)
                         }
 
                         if subscriptionManager.isInIntroductoryOffer {
-                            LabeledContent("状態") {
-                                Text("無料トライアル中")
+                            LabeledContent(String(localized: "状態")) {
+                                Text(String(localized: "無料トライアル中"))
                             }
                             .foregroundStyle(.orange)
                         }
 
                         if let expirationDate = subscriptionManager.activeExpirationDate {
-                            LabeledContent(subscriptionManager.isInIntroductoryOffer ? "トライアル終了日" : "次回更新日") {
+                            LabeledContent(subscriptionManager.isInIntroductoryOffer ? String(localized: "トライアル終了日") : String(localized: "次回更新日")) {
                                 Text(expirationDate, style: .date)
                                     .foregroundStyle(.secondary)
                             }
@@ -39,14 +39,14 @@ struct SettingsView: View {
                         Button {
                             openURL(Self.manageSubscriptionsURL)
                         } label: {
-                            infoRow(icon: "creditcard", title: "サブスクリプションを管理")
+                            infoRow(icon: "creditcard", title: String(localized: "サブスクリプションを管理"))
                         }
                         .tint(.primary)
                     } else {
                         Button {
                             isShowingPaywall = true
                         } label: {
-                            infoRow(icon: "crown.fill", title: "Proにアップグレード")
+                            infoRow(icon: "crown.fill", title: String(localized: "Proにアップグレード"))
                         }
                         .tint(.orange)
                     }
@@ -56,20 +56,20 @@ struct SettingsView: View {
                     } label: {
                         if isRestoringSubscription {
                             HStack {
-                                Text("購入を復元")
+                                Text(String(localized: "購入を復元"))
                                 Spacer()
                                 ProgressView()
                             }
                         } else {
-                            infoRow(icon: "arrow.clockwise", title: "購入を復元")
+                            infoRow(icon: "arrow.clockwise", title: String(localized: "購入を復元"))
                         }
                     }
                     .tint(.primary)
                     .disabled(isRestoringSubscription)
                 }
 
-                Section("ストレージ") {
-                    LabeledContent("キャッシュサイズ") {
+                Section(String(localized: "ストレージ")) {
+                    LabeledContent(String(localized: "キャッシュサイズ")) {
                         if viewModel.isCalculatingCacheSize {
                             ProgressView()
                         } else {
@@ -79,7 +79,7 @@ struct SettingsView: View {
                     }
 
                     PrimaryButton(
-                        title: "キャッシュを削除",
+                        title: String(localized: "キャッシュを削除"),
                         systemImage: "trash",
                         style: .bordered,
                         isProcessing: viewModel.isClearingCache,
@@ -90,40 +90,40 @@ struct SettingsView: View {
                     .tint(.red)
                 }
 
-                Section("アプリ情報") {
-                    infoRow(icon: "info.circle", title: "バージョン", value: viewModel.appVersionText)
+                Section(String(localized: "アプリ情報")) {
+                    infoRow(icon: "info.circle", title: String(localized: "バージョン"), value: viewModel.appVersionText)
 
                     Button {
                         isShowingHelp = true
                     } label: {
-                        infoRow(icon: "questionmark.circle", title: "使い方ヘルプ")
+                        infoRow(icon: "questionmark.circle", title: String(localized: "使い方ヘルプ"))
                     }
                     .tint(.primary)
 
                     Button {
                         isShowingPrivacyPolicy = true
                     } label: {
-                        infoRow(icon: "hand.raised", title: "プライバシーポリシー")
+                        infoRow(icon: "hand.raised", title: String(localized: "プライバシーポリシー"))
                     }
                     .tint(.primary)
 
                     Button {
                         isShowingTermsOfService = true
                     } label: {
-                        infoRow(icon: "doc.plaintext", title: "利用規約")
+                        infoRow(icon: "doc.plaintext", title: String(localized: "利用規約"))
                     }
                     .tint(.primary)
                 }
             }
             .tabBarClearance()
             .withTopAdBanner()
-            .navigationTitle("設定")
+            .navigationTitle(String(localized: "設定"))
             .task {
                 await viewModel.calculateCacheSize()
             }
             .sheet(isPresented: $isShowingHelp) {
                 InfoSheet(
-                    title: "使い方ヘルプ",
+                    title: String(localized: "使い方ヘルプ"),
                     message: """
                     ・結合: 複数のPDFを1つにまとめます。
                     ・画像からPDF: 写真を選択してPDFに変換します。
@@ -148,8 +148,8 @@ struct SettingsView: View {
     private var planLabel: String {
         guard let activeProductID = subscriptionManager.activeProductID else { return "PDF One Pro" }
         return activeProductID == SubscriptionProductID.yearly.rawValue
-            ? "PDF One Pro（年額）"
-            : "PDF One Pro（月額）"
+            ? String(localized: "PDF One Pro（年額）")
+            : String(localized: "PDF One Pro（月額）")
     }
 
     private func restoreSubscription() async {
@@ -160,10 +160,10 @@ struct SettingsView: View {
         do {
             try await subscriptionManager.restorePurchases()
             viewModel.toast = subscriptionManager.isProUser
-                ? ToastData(style: .success, message: "購入を復元しました")
-                : ToastData(style: .error, message: "復元できる購入が見つかりませんでした")
+                ? ToastData(style: .success, message: String(localized: "購入を復元しました"))
+                : ToastData(style: .error, message: String(localized: "復元できる購入が見つかりませんでした"))
         } catch {
-            viewModel.toast = ToastData(style: .error, message: "復元に失敗しました")
+            viewModel.toast = ToastData(style: .error, message: String(localized: "復元に失敗しました"))
         }
     }
 
@@ -199,7 +199,7 @@ private struct InfoSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("閉じる") { dismiss() }
+                    Button(String(localized: "閉じる")) { dismiss() }
                 }
             }
         }

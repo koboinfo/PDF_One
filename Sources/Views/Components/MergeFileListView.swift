@@ -6,7 +6,7 @@ struct MergeFileListView: View {
 
     var body: some View {
         List {
-            Section("選択中のファイル（\(viewModel.selectedURLs.count)）") {
+            Section(String(localized: "選択中のファイル（\(viewModel.selectedURLs.count)）")) {
                 ForEach(viewModel.selectedURLs, id: \.self) { url in
                     Label(url.lastPathComponent, systemImage: "doc.text")
                         .lineLimit(1)
@@ -20,7 +20,7 @@ struct MergeFileListView: View {
             }
 
             if let outputURL = viewModel.outputURL {
-                Section("結合結果") {
+                Section(String(localized: "結合結果")) {
                     PDFPreviewView(url: outputURL)
                         .frame(height: 240)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -28,7 +28,7 @@ struct MergeFileListView: View {
                     Button {
                         isShowingShareSheet = true
                     } label: {
-                        Label("共有する", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "共有する"), systemImage: "square.and.arrow.up")
                     }
                     .tint(ToolIconType.merge.tint)
                 }

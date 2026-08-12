@@ -3,7 +3,7 @@ import SwiftUI
 /// 処理完了画面で、生成されたPDFをカード型プレビューとして表示する共通コンポーネント。
 struct ResultPreviewCard: View {
     let url: URL
-    var title: String = "生成されたPDF"
+    var title: String = String(localized: "生成されたPDF")
     var subtitle: String?
 
     var body: some View {
@@ -37,7 +37,7 @@ struct ResultPreviewCard: View {
 }
 
 #Preview {
-    ResultPreviewCard(url: URL(fileURLWithPath: "/tmp/sample.pdf"), subtitle: "3ページ・1.2MB")
+    ResultPreviewCard(url: URL(fileURLWithPath: "/tmp/sample.pdf"), subtitle: String(localized: "3ページ・1.2MB"))
         .padding(24)
         .background(Color(hue: 0.62, saturation: 0.05, brightness: 0.95))
 }

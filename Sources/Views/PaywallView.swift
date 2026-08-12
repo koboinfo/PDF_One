@@ -41,7 +41,7 @@ struct PaywallContentView: View {
                 ProgressView()
                     .padding(.top, 20)
             } else if viewModel.products.isEmpty {
-                Text("プランを取得できませんでした。通信環境をご確認のうえ、もう一度お試しください。")
+                Text(String(localized: "プランを取得できませんでした。通信環境をご確認のうえ、もう一度お試しください。"))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -91,7 +91,7 @@ struct PaywallContentView: View {
             }
             Text("PDF One Pro")
                 .font(.title2.weight(.bold))
-            Text("OCR・Office変換・透かし・電子署名を無制限に")
+            Text(String(localized: "OCR・Office変換・透かし・電子署名を無制限に"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -102,11 +102,11 @@ struct PaywallContentView: View {
 
     private var featureList: some View {
         VStack(alignment: .leading, spacing: 12) {
-            featureRow(icon: "text.viewfinder", text: "OCRで画像・PDFの文字を認識")
-            featureRow(icon: "doc.text", text: "PDF↔Word/Excel/PowerPoint変換")
-            featureRow(icon: "drop", text: "透かしの追加")
-            featureRow(icon: "signature", text: "電子署名")
-            featureRow(icon: "sparkles", text: "今後追加される新機能も追加費用なし")
+            featureRow(icon: "text.viewfinder", text: String(localized: "OCRで画像・PDFの文字を認識"))
+            featureRow(icon: "doc.text", text: String(localized: "PDF↔Word/Excel/PowerPoint変換"))
+            featureRow(icon: "drop", text: String(localized: "透かしの追加"))
+            featureRow(icon: "signature", text: String(localized: "電子署名"))
+            featureRow(icon: "sparkles", text: String(localized: "今後追加される新機能も追加費用なし"))
         }
         .padding(20)
         .background(
@@ -152,7 +152,7 @@ struct PaywallContentView: View {
                         Text(product.displayName)
                             .font(.subheadline.weight(.semibold))
                         if isYearly {
-                            Text("お得")
+                            Text(String(localized: "お得"))
                                 .font(.system(size: 10, weight: .semibold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
@@ -161,7 +161,7 @@ struct PaywallContentView: View {
                         }
                     }
                     if isEligibleForTrial {
-                        Text("7日間無料トライアル付き")
+                        Text(String(localized: "7日間無料トライアル付き"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -199,7 +199,7 @@ struct PaywallContentView: View {
             if viewModel.isRestoring {
                 ProgressView()
             } else {
-                Text("購入を復元")
+                Text(String(localized: "購入を復元"))
                     .font(.footnote.weight(.medium))
             }
         }
@@ -218,8 +218,8 @@ struct PaywallContentView: View {
                 .padding(.horizontal, 24)
 
             HStack(spacing: 16) {
-                Button("利用規約") { isShowingTerms = true }
-                Button("プライバシーポリシー") { isShowingPrivacyPolicy = true }
+                Button(String(localized: "利用規約")) { isShowingTerms = true }
+                Button(String(localized: "プライバシーポリシー")) { isShowingPrivacyPolicy = true }
             }
             .font(.caption2)
         }
@@ -228,9 +228,9 @@ struct PaywallContentView: View {
 
     private func ctaTitle(_ viewModel: PaywallViewModel) -> String {
         if let product = viewModel.selectedProduct, viewModel.isEligibleForTrial(product) {
-            return "7日間無料で始める"
+            return String(localized: "7日間無料で始める")
         }
-        return "購入する"
+        return String(localized: "購入する")
     }
 }
 

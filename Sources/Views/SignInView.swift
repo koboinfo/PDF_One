@@ -34,7 +34,7 @@ struct SignInView: View {
             header
 
             VStack(spacing: 12) {
-                TextField("メールアドレス", text: $email)
+                TextField(String(localized: "メールアドレス"), text: $email)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
                     .keyboardType(.emailAddress)
@@ -45,7 +45,7 @@ struct SignInView: View {
                             .fill(Color.white)
                     )
 
-                SecureField("パスワード", text: $password)
+                SecureField(String(localized: "パスワード"), text: $password)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
                     .textContentType(.password)
@@ -85,7 +85,7 @@ struct SignInView: View {
             }
             Text("PDF One")
                 .font(.title2.weight(.bold))
-            Text("ロックを解除してください")
+            Text(String(localized: "ロックを解除してください"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -104,7 +104,7 @@ struct SignInView: View {
     }
 
     private var biometricTitle: String {
-        LAContext().biometryType == .faceID ? "Face IDでロック解除" : "Touch IDでロック解除"
+        LAContext().biometryType == .faceID ? String(localized: "Face IDでロック解除") : String(localized: "Touch IDでロック解除")
     }
 
     private var biometricSystemImage: String {

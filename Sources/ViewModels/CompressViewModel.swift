@@ -31,17 +31,18 @@ final class CompressViewModel {
             return nil
         }
         let reduction = 1 - Double(compressedFileSizeBytes) / Double(originalFileSizeBytes)
-        return String(format: "%.0f%%削減", max(0, reduction) * 100)
+        return String(format: String(localized: "%.0f%%削減"), max(0, reduction) * 100)
     }
 
     func compressPDF() async {
         guard let selectedURL else {
-            errorMessage = "圧縮するPDFファイルを選択してください。"
+            errorMessage = String(localized: "圧縮するPDFファイルを選択してください。")
             return
         }
 
         isProcessing = true
         errorMessage = nil
+        AdMobInterstitialManager.shared.preloadAd()
 
         do {
             let destinationURL = try SavedFileStore.directory()
@@ -78,10 +79,10 @@ extension PDFCompressionQuality {
 
     var label: String {
         switch self {
-        case .low: return "低（サイズ優先）"
-        case .medium: return "中"
-        case .high: return "高（画質優先）"
-        case .custom: return "カスタム"
+        case .low: return String(localized: "低（サイズ優先）")
+        case .medium: return String(localized: "中")
+        case .high: return String(localized: "高（画質優先）")
+        case .custom: return String(localized: "カスタム")
         }
     }
 }

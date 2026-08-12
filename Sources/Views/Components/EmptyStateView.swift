@@ -76,8 +76,8 @@ struct EmptyStateView: View {
 #Preview("Standard") {
     EmptyStateView(
         systemImage: "doc.on.doc",
-        title: "結合したいPDFファイルを選択してください",
-        actionTitle: "PDFを選択",
+        title: String(localized: "結合したいPDFファイルを選択してください"),
+        actionTitle: String(localized: "PDFを選択"),
         action: {}
     )
     .background(AppBackground())
@@ -86,9 +86,9 @@ struct EmptyStateView: View {
 #Preview("Long Title - iPhone SE") {
     EmptyStateView(
         systemImage: "doc.on.doc",
-        title: "結合したいPDFファイルを\nドラッグ＆ドロップ、またはタップして選択してください",
-        message: "複数ファイルを選択した場合、選んだ順に結合されます",
-        actionTitle: "PDFを選択",
+        title: String(localized: "結合したいPDFファイルを\nドラッグ＆ドロップ、またはタップして選択してください"),
+        message: String(localized: "複数ファイルを選択した場合、選んだ順に結合されます"),
+        actionTitle: String(localized: "PDFを選択"),
         action: {}
     )
     .background(AppBackground())
@@ -98,7 +98,7 @@ struct EmptyStateView: View {
 #Preview("No Action") {
     EmptyStateView(
         systemImage: "tray",
-        title: "保存されたファイルはありません"
+        title: String(localized: "保存されたファイルはありません")
     )
     .background(AppBackground())
 }

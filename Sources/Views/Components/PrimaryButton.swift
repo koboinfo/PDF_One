@@ -91,10 +91,10 @@ private struct PrimaryButtonStyle: ButtonStyle {
 
 #Preview {
     VStack(spacing: 16) {
-        PrimaryButton(title: "PDFを選択", systemImage: "plus.circle.fill", action: {})
-        PrimaryButton(title: "処理中…", systemImage: "arrow.down.circle.fill", isProcessing: true, action: {})
-        PrimaryButton(title: "共有する", systemImage: "square.and.arrow.up", style: .bordered, action: {})
-        PrimaryButton(title: "無効化", systemImage: "xmark", isDisabled: true, action: {})
+        PrimaryButton(title: String(localized: "PDFを選択"), systemImage: "plus.circle.fill", action: {})
+        PrimaryButton(title: String(localized: "処理中…"), systemImage: "arrow.down.circle.fill", isProcessing: true, action: {})
+        PrimaryButton(title: String(localized: "共有する"), systemImage: "square.and.arrow.up", style: .bordered, action: {})
+        PrimaryButton(title: String(localized: "無効化"), systemImage: "xmark", isDisabled: true, action: {})
     }
     .padding()
     .background(Color(hue: 0.62, saturation: 0.05, brightness: 0.95))

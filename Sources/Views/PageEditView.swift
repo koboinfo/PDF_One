@@ -8,8 +8,8 @@ struct PageEditView: View {
 
     var body: some View {
         BaseToolView(
-            title: "ページ編集",
-            helpText: "ページの並び替え・回転・削除ができます。ドラッグで順番を入れ替え、選択したページだけを抽出することもできます。"
+            title: String(localized: "ページ編集"),
+            helpText: String(localized: "ページの並び替え・回転・削除ができます。ドラッグで順番を入れ替え、選択したページだけを抽出することもできます。")
         ) {
             Group {
                 if viewModel.pageItems.isEmpty {
@@ -23,7 +23,7 @@ struct PageEditView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "処理中…")
+                NeumorphicProcessingCard(message: String(localized: "処理中…"))
             }
         }
         .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.pdf]) { result in
@@ -40,7 +40,7 @@ struct PageEditView: View {
             }
         }
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -55,8 +55,8 @@ struct PageEditView: View {
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "square.and.arrow.up.on.square.and.arrow.down",
-            title: "編集したいPDFファイルを選択してください",
-            actionTitle: "PDFを選択"
+            title: String(localized: "編集したいPDFファイルを選択してください"),
+            actionTitle: String(localized: "PDFを選択")
         ) {
             isShowingImporter = true
         }
@@ -66,7 +66,7 @@ struct PageEditView: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Button("別のPDFを選択") { isShowingImporter = true }
+                Button(String(localized: "別のPDFを選択")) { isShowingImporter = true }
                     .font(.subheadline.weight(.medium))
             }
             .padding(.horizontal, 20)
@@ -82,7 +82,7 @@ struct PageEditView: View {
             VStack(spacing: 12) {
                 if viewModel.outputURL != nil {
                     PrimaryButton(
-                        title: "編集済みPDFを共有",
+                        title: String(localized: "編集済みPDFを共有"),
                         systemImage: "square.and.arrow.up",
                         style: .bordered
                     ) {
@@ -92,7 +92,7 @@ struct PageEditView: View {
 
                 HStack(spacing: 12) {
                     PrimaryButton(
-                        title: "選択ページを抽出",
+                        title: String(localized: "選択ページを抽出"),
                         systemImage: "doc.badge.arrow.up",
                         style: .bordered,
                         isDisabled: !viewModel.hasSelection
@@ -101,7 +101,7 @@ struct PageEditView: View {
                     }
 
                     PrimaryButton(
-                        title: "保存",
+                        title: String(localized: "保存"),
                         systemImage: "square.and.arrow.down.on.square",
                         isProcessing: viewModel.isProcessing,
                         isDisabled: viewModel.pageItems.isEmpty

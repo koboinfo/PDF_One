@@ -9,7 +9,7 @@ struct PDFToJPGView: View {
     var body: some View {
         BaseToolView(
             title: "PDF→JPG",
-            helpText: "PDFの各ページをJPG画像に変換して保存・共有します。"
+            helpText: String(localized: "PDFの各ページをJPG画像に変換して保存・共有します。")
         ) {
             Group {
                 if viewModel.pages.isEmpty {
@@ -23,7 +23,7 @@ struct PDFToJPGView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "処理中…")
+                NeumorphicProcessingCard(message: String(localized: "処理中…"))
             }
         }
         .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.pdf]) { result in
@@ -42,7 +42,7 @@ struct PDFToJPGView: View {
             isShowingShareSheet = true
         }
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -57,8 +57,8 @@ struct PDFToJPGView: View {
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "photo.on.rectangle",
-            title: "JPGに変換したいPDFファイルを選択してください",
-            actionTitle: "PDFを選択"
+            title: String(localized: "JPGに変換したいPDFファイルを選択してください"),
+            actionTitle: String(localized: "PDFを選択")
         ) {
             isShowingImporter = true
         }
@@ -68,7 +68,7 @@ struct PDFToJPGView: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Button("別のPDFを選択") { isShowingImporter = true }
+                Button(String(localized: "別のPDFを選択")) { isShowingImporter = true }
                     .font(.subheadline.weight(.medium))
             }
             .padding(.horizontal, 20)
@@ -82,7 +82,7 @@ struct PDFToJPGView: View {
     private var footerContent: some View {
         if !viewModel.pages.isEmpty {
             PrimaryButton(
-                title: "画像として保存・共有",
+                title: String(localized: "画像として保存・共有"),
                 systemImage: "square.and.arrow.up",
                 isProcessing: viewModel.isProcessing
             ) {

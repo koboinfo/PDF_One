@@ -18,8 +18,8 @@ struct WatermarkView: View {
 
     private var toolContent: some View {
         BaseToolView(
-            title: "透かし",
-            helpText: "PDFの各ページに透かしテキストを追加します。"
+            title: String(localized: "透かし"),
+            helpText: String(localized: "PDFの各ページに透かしテキストを追加します。")
         ) {
             Group {
                 if viewModel.selectedURL == nil {
@@ -31,7 +31,7 @@ struct WatermarkView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "処理中…")
+                NeumorphicProcessingCard(message: String(localized: "処理中…"))
             }
         }
         .fileImporter(isPresented: $isShowingImporter, allowedContentTypes: [.pdf]) { result in
@@ -43,7 +43,7 @@ struct WatermarkView: View {
             }
         }
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -58,8 +58,8 @@ struct WatermarkView: View {
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "drop",
-            title: "透かしを追加したいPDFファイルを選択してください",
-            actionTitle: "PDFを選択"
+            title: String(localized: "透かしを追加したいPDFファイルを選択してください"),
+            actionTitle: String(localized: "PDFを選択")
         ) {
             isShowingImporter = true
         }
@@ -67,32 +67,32 @@ struct WatermarkView: View {
 
     private var watermarkForm: some View {
         Form {
-            Section("選択中のファイル") {
+            Section(String(localized: "選択中のファイル")) {
                 Label(viewModel.selectedURL?.lastPathComponent ?? "", systemImage: "doc.text")
                     .lineLimit(1)
 
-                Button("別のファイルを選択") {
+                Button(String(localized: "別のファイルを選択")) {
                     isShowingImporter = true
                 }
             }
 
-            Section("透かしテキスト") {
-                TextField("例：CONFIDENTIAL", text: $viewModel.watermarkText)
+            Section(String(localized: "透かしテキスト")) {
+                TextField(String(localized: "例：CONFIDENTIAL"), text: $viewModel.watermarkText)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
             }
 
             if let outputURL = viewModel.outputURL {
-                Section("透かし結果") {
+                Section(String(localized: "透かし結果")) {
                     ShareLink(item: outputURL) {
-                        Label("共有する", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "共有する"), systemImage: "square.and.arrow.up")
                     }
                 }
             }
 
             Section {
                 PrimaryButton(
-                    title: "透かしを追加する",
+                    title: String(localized: "透かしを追加する"),
                     systemImage: "drop.fill",
                     isProcessing: viewModel.isProcessing,
                     isDisabled: !viewModel.canAddWatermark

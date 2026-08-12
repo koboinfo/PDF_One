@@ -27,12 +27,12 @@ final class SplitPDFViewModel {
 
     func splitPDF() async {
         guard let sourceURL else {
-            errorMessage = "分割するPDFファイルを選択してください。"
+            errorMessage = String(localized: "分割するPDFファイルを選択してください。")
             return
         }
 
         guard let pageRanges = Self.parseRanges(rangeText, pageCount: pageCount), !pageRanges.isEmpty else {
-            errorMessage = "分割範囲を正しく入力してください（例: 1-3, 4-5）。"
+            errorMessage = String(localized: "分割範囲を正しく入力してください（例: 1-3, 4-5）。")
             return
         }
 

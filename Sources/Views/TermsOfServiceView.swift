@@ -3,40 +3,40 @@ import SwiftUI
 struct TermsOfServiceView: View {
     @Environment(\.dismiss) private var dismiss
 
-    private static let effectiveDate = "2026年8月11日"
+    private static let effectiveDate = String(localized: "2026年8月11日")
     private static let contactEmail = "info.kobo.jp@gmail.com"
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text("制定日：\(Self.effectiveDate)")
+                    Text(String(localized: "制定日：\(Self.effectiveDate)"))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
                     section(
-                        title: "はじめに",
+                        title: String(localized: "はじめに"),
                         body: """
                         この利用規約（以下「本規約」といいます）は、PDF One（以下「本アプリ」といいます）の利用条件を定めるものです。利用者は、本アプリをダウンロード・利用することにより、本規約に同意したものとみなされます。
                         """
                     )
 
                     section(
-                        title: "第1条（適用）",
+                        title: String(localized: "第1条（適用）"),
                         body: """
                         本規約は、本アプリの利用に関する開発者（以下「運営者」といいます）と利用者との間のすべての関係に適用されます。
                         """
                     )
 
                     section(
-                        title: "第2条（本アプリの内容）",
+                        title: String(localized: "第2条（本アプリの内容）"),
                         body: """
                         本アプリは、PDFファイルの結合・分割・圧縮・変換・編集・パスワード保護・電子署名・OCR・透かし付与等の機能を、利用者の端末内で提供するユーティリティアプリです。
                         """
                     )
 
                     section(
-                        title: "第3条（禁止事項）",
+                        title: String(localized: "第3条（禁止事項）"),
                         body: """
                         利用者は、本アプリの利用にあたり、以下の行為をしてはなりません。
 
@@ -51,21 +51,21 @@ struct TermsOfServiceView: View {
                     )
 
                     section(
-                        title: "第4条（知的財産権）",
+                        title: String(localized: "第4条（知的財産権）"),
                         body: """
                         本アプリに関する著作権、商標権その他の知的財産権は、運営者または正当な権利を有する第三者に帰属します。本規約に基づく本アプリの利用許諾は、本アプリに関する運営者または第三者の知的財産権の利用許諾を意味するものではありません。
                         """
                     )
 
                     section(
-                        title: "第5条（利用者が処理するファイルの責任）",
+                        title: String(localized: "第5条（利用者が処理するファイルの責任）"),
                         body: """
                         本アプリで結合・変換・編集等を行うPDFファイル・画像ファイル等の内容および当該ファイルに関する権利関係については、利用者が自己の責任において管理するものとし、運営者は当該ファイルの内容について一切の責任を負いません。
                         """
                     )
 
                     section(
-                        title: "第6条（本アプリの提供の停止等）",
+                        title: String(localized: "第6条（本アプリの提供の停止等）"),
                         body: """
                         運営者は、以下のいずれかの事由があると判断した場合、利用者に事前に通知することなく本アプリの提供の全部または一部を停止または中断することができるものとします。
 
@@ -76,7 +76,7 @@ struct TermsOfServiceView: View {
                     )
 
                     section(
-                        title: "第7条（免責事項）",
+                        title: String(localized: "第7条（免責事項）"),
                         body: """
                         1. 運営者は、本アプリに事実上または法律上の瑕疵（安全性、信頼性、正確性、完全性、有効性、特定の目的への適合性、セキュリティ等に関する欠陥、エラーやバグ、権利侵害等を含みます）がないことを明示的にも黙示的にも保証しません。
                         2. 運営者は、本アプリに起因して利用者に生じたあらゆる損害について、運営者の故意または重過失による場合を除き、一切の責任を負いません。
@@ -85,28 +85,28 @@ struct TermsOfServiceView: View {
                     )
 
                     section(
-                        title: "第8条（サービス内容の変更等）",
+                        title: String(localized: "第8条（サービス内容の変更等）"),
                         body: """
                         運営者は、利用者に通知することなく、本アプリの内容を変更、追加または廃止することができるものとし、これによって利用者に生じた損害について一切の責任を負いません。
                         """
                     )
 
                     section(
-                        title: "第9条（利用規約の変更）",
+                        title: String(localized: "第9条（利用規約の変更）"),
                         body: """
                         運営者は、必要と判断した場合には、利用者に通知することなくいつでも本規約を変更することができるものとします。変更後の利用規約は、本アプリ内または運営者が指定するウェブページに掲示された時点から効力を生じるものとします。
                         """
                     )
 
                     section(
-                        title: "第10条（準拠法・裁判管轄）",
+                        title: String(localized: "第10条（準拠法・裁判管轄）"),
                         body: """
                         本規約の解釈にあたっては、日本法を準拠法とします。本アプリに関して紛争が生じた場合には、運営者の所在地を管轄する裁判所を専属的合意管轄とします。
                         """
                     )
 
                     section(
-                        title: "第11条（サブスクリプション）",
+                        title: String(localized: "第11条（サブスクリプション）"),
                         body: """
                         1. 本アプリは、一部の機能（OCR、PDF↔Office変換、透かし、電子署名等）を利用するための有料サブスクリプション（自動更新型、以下「本サブスクリプション」といいます）を提供します。
                         2. 本サブスクリプションの料金は、購入画面に表示された金額とし、Apple（App Store）を通じて課金されます。
@@ -118,7 +118,7 @@ struct TermsOfServiceView: View {
                     )
 
                     section(
-                        title: "第12条（お問い合わせ）",
+                        title: String(localized: "第12条（お問い合わせ）"),
                         body: """
                         本規約に関するお問い合わせは、下記の連絡先までお願いいたします。
 
@@ -129,11 +129,11 @@ struct TermsOfServiceView: View {
                 }
                 .padding()
             }
-            .navigationTitle("利用規約")
+            .navigationTitle(String(localized: "利用規約"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("閉じる") { dismiss() }
+                    Button(String(localized: "閉じる")) { dismiss() }
                 }
             }
         }

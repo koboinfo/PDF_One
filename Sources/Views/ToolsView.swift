@@ -33,7 +33,7 @@ struct ToolsView: View {
                             }
                         }
                     } header: {
-                        sectionHeader("ツール一覧")
+                        sectionHeader(String(localized: "ツール一覧"))
                     }
 
                     if !viewModel.comingSoonTools.isEmpty {
@@ -42,7 +42,7 @@ struct ToolsView: View {
                                 ToolCardView(tool: tool, action: {})
                             }
                         } header: {
-                            sectionHeader("準備中")
+                            sectionHeader(String(localized: "準備中"))
                         }
                     }
                 }
@@ -52,7 +52,7 @@ struct ToolsView: View {
             .tabBarClearance()
             .withTopAdBanner()
             .background(AppBackground())
-            .navigationTitle("ツール")
+            .navigationTitle(String(localized: "ツール"))
             .onGeometryChange(for: CGFloat.self) { proxy in
                 proxy.size.width
             } action: { newWidth in
@@ -120,17 +120,17 @@ struct ToolsView: View {
     }
 }
 
-#Preview("通常時（無料ユーザー）") {
+#Preview(String(localized: "通常時（無料ユーザー）")) {
     ToolsView()
         .environment(SubscriptionManager.preview(isProUser: false))
 }
 
-#Preview("Proユーザー時") {
+#Preview(String(localized: "Proユーザー時")) {
     ToolsView()
         .environment(SubscriptionManager.preview(isProUser: true))
 }
 
-#Preview("小型画面時（iPhone SE）") {
+#Preview(String(localized: "小型画面時（iPhone SE）")) {
     ToolsView()
         .environment(SubscriptionManager.preview(isProUser: false))
         .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))

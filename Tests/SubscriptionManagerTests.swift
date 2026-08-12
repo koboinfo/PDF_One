@@ -11,7 +11,10 @@ final class SubscriptionManagerTests: XCTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
-        session = try SKTestSession(configurationFileNamed: "Subscriptions")
+        let configURL = try XCTUnwrap(
+            Bundle(for: Self.self).url(forResource: "Subscriptions", withExtension: "storekit")
+        )
+        session = try SKTestSession(contentsOf: configURL)
         session.resetToDefaultState()
         session.clearTransactions()
         session.disableDialogs = true

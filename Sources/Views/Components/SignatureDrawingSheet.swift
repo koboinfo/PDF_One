@@ -11,17 +11,17 @@ struct SignatureDrawingSheet: View {
         NavigationStack {
             SignatureCanvasView(canvasView: $canvasView)
                 .background(Color(white: 0.95))
-                .navigationTitle("署名を描く")
+                .navigationTitle(String(localized: "署名を描く"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("キャンセル") { dismiss() }
+                        Button(String(localized: "キャンセル")) { dismiss() }
                     }
                     ToolbarItem(placement: .navigationBarLeading) {
-                        Button("クリア") { canvasView.drawing = PKDrawing() }
+                        Button(String(localized: "クリア")) { canvasView.drawing = PKDrawing() }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("完了") { completeDrawing() }
+                        Button(String(localized: "完了")) { completeDrawing() }
                             .disabled(canvasView.drawing.bounds.isEmpty)
                     }
                 }

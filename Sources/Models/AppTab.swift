@@ -5,11 +5,11 @@ enum AppTab: CaseIterable {
 
     var label: String {
         switch self {
-        case .home: return "ホーム"
-        case .files: return "ファイル"
-        case .tools: return "ツール"
-        case .scanner: return "スキャナー"
-        case .settings: return "設定"
+        case .home: return String(localized: "ホーム")
+        case .files: return String(localized: "ファイル")
+        case .tools: return String(localized: "ツール")
+        case .scanner: return String(localized: "スキャナー")
+        case .settings: return String(localized: "設定")
         }
     }
 

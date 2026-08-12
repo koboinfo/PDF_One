@@ -25,13 +25,14 @@ final class OfficeConvertViewModel {
 
     func convert() async {
         guard let selectedURL else {
-            errorMessage = "変換するPDFファイルを選択してください。"
+            errorMessage = String(localized: "変換するPDFファイルを選択してください。")
             return
         }
 
         isProcessing = true
         progress = 0
         errorMessage = nil
+        AdMobInterstitialManager.shared.preloadAd()
 
         do {
             let destinationURL = try SavedFileStore.directory(for: .office)

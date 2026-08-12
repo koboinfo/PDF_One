@@ -24,11 +24,11 @@ final class WatermarkViewModel {
 
     func addWatermark() async {
         guard let selectedURL else {
-            errorMessage = "透かしを追加するPDFファイルを選択してください。"
+            errorMessage = String(localized: "透かしを追加するPDFファイルを選択してください。")
             return
         }
         guard !watermarkText.isEmpty else {
-            errorMessage = "透かしに表示するテキストを入力してください。"
+            errorMessage = String(localized: "透かしに表示するテキストを入力してください。")
             return
         }
 

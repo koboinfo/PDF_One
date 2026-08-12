@@ -9,8 +9,8 @@ struct SplitPDFView: View {
 
     var body: some View {
         BaseToolView(
-            title: "PDF分割",
-            helpText: "ページ範囲をカンマ区切りで指定すると、範囲ごとに複数のPDFファイルへ分割します（例: 1-3, 4-5）。"
+            title: String(localized: "PDF分割"),
+            helpText: String(localized: "ページ範囲をカンマ区切りで指定すると、範囲ごとに複数のPDFファイルへ分割します（例: 1-3, 4-5）。")
         ) {
             Group {
                 if viewModel.sourceURL == nil {
@@ -22,7 +22,7 @@ struct SplitPDFView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "分割中…")
+                NeumorphicProcessingCard(message: String(localized: "分割中…"))
             }
         }
         .toast($toast)
@@ -31,17 +31,17 @@ struct SplitPDFView: View {
             viewModel.sourceURL = url
         }
         .sheet(isPresented: $isShowingShareSheet) {
-            ModernSheet(title: "共有") {
+            ModernSheet(title: String(localized: "共有")) {
                 ActivityView(activityItems: viewModel.outputURLs)
             }
         }
         .onChange(of: viewModel.outputURLs) { _, newValue in
             guard !newValue.isEmpty else { return }
-            toast = ToastData(style: .success, message: "\(newValue.count)個のファイルに分割しました")
+            toast = ToastData(style: .success, message: String(localized: "\(newValue.count)個のファイルに分割しました"))
             isShowingShareSheet = true
         }
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -56,8 +56,8 @@ struct SplitPDFView: View {
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "square.split.2x1",
-            title: "分割したいPDFファイルを選択してください",
-            actionTitle: "PDFを選択"
+            title: String(localized: "分割したいPDFファイルを選択してください"),
+            actionTitle: String(localized: "PDFを選択")
         ) {
             isShowingPicker = true
         }
@@ -65,36 +65,36 @@ struct SplitPDFView: View {
 
     private var splitForm: some View {
         Form {
-            Section("選択中のファイル") {
+            Section(String(localized: "選択中のファイル")) {
                 Label(viewModel.sourceURL?.lastPathComponent ?? "", systemImage: "doc.text")
                     .lineLimit(1)
 
-                LabeledContent("総ページ数", value: "\(viewModel.pageCount)")
+                LabeledContent(String(localized: "総ページ数"), value: "\(viewModel.pageCount)")
 
-                Button("別のファイルを選択") {
+                Button(String(localized: "別のファイルを選択")) {
                     isShowingPicker = true
                 }
             }
 
-            Section("分割範囲") {
-                TextField("例: 1-3, 4-5", text: $viewModel.rangeText)
+            Section(String(localized: "分割範囲")) {
+                TextField(String(localized: "例: 1-3, 4-5"), text: $viewModel.rangeText)
                     .keyboardType(.numbersAndPunctuation)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
 
-                Text("カンマ区切りでページ範囲を指定してください。")
+                Text(String(localized: "カンマ区切りでページ範囲を指定してください。"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             if !viewModel.outputURLs.isEmpty {
-                Section("分割結果") {
-                    Text("\(viewModel.outputURLs.count)個のファイルに分割しました。")
+                Section(String(localized: "分割結果")) {
+                    Text(String(localized: "\(viewModel.outputURLs.count)個のファイルに分割しました。"))
 
                     Button {
                         isShowingShareSheet = true
                     } label: {
-                        Label("共有する", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "共有する"), systemImage: "square.and.arrow.up")
                     }
                     .tint(ToolIconType.splitPDF.tint)
                 }
@@ -102,7 +102,7 @@ struct SplitPDFView: View {
 
             Section {
                 PrimaryButton(
-                    title: "分割する",
+                    title: String(localized: "分割する"),
                     systemImage: "square.split.2x1",
                     isProcessing: viewModel.isProcessing
                 ) {

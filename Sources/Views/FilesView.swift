@@ -10,8 +10,8 @@ struct FilesView: View {
                 if viewModel.displayedFiles.isEmpty, !viewModel.isLoading {
                     EmptyStateView(
                         systemImage: "folder",
-                        title: viewModel.searchText.isEmpty ? "保存されたPDFはまだありません" : "一致するファイルがありません",
-                        message: viewModel.searchText.isEmpty ? "各ツールで作成したPDFがここに表示されます。" : nil
+                        title: viewModel.searchText.isEmpty ? String(localized: "保存されたPDFはまだありません") : String(localized: "一致するファイルがありません"),
+                        message: viewModel.searchText.isEmpty ? String(localized: "各ツールで作成したPDFがここに表示されます。") : nil
                     )
                 } else {
                     List {
@@ -32,14 +32,14 @@ struct FilesView: View {
             }
             .tabBarClearance()
             .withTopAdBanner()
-            .navigationTitle("ファイル")
-            .searchable(text: $viewModel.searchText, prompt: "ファイル名で検索")
+            .navigationTitle(String(localized: "ファイル"))
+            .searchable(text: $viewModel.searchText, prompt: String(localized: "ファイル名で検索"))
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        Picker("並び替え", selection: $viewModel.sortOption) {
+                        Picker(String(localized: "並び替え"), selection: $viewModel.sortOption) {
                             ForEach(FilesViewModel.SortOption.allCases, id: \.self) { option in
                                 Text(option.label).tag(option)
                             }
@@ -56,7 +56,7 @@ struct FilesView: View {
                 await viewModel.loadFiles()
             }
             .sheet(item: $fileToShare) { file in
-                ModernSheet(title: "共有") {
+                ModernSheet(title: String(localized: "共有")) {
                     ActivityView(activityItems: [file.url])
                 }
             }
@@ -94,7 +94,7 @@ private struct FileRow: View {
     private var subtitle: String {
         var parts: [String] = []
         if let pageCount = file.pageCount {
-            parts.append("\(pageCount)ページ")
+            parts.append(String(localized: "\(pageCount)ページ"))
         }
         parts.append(ByteCountFormatter.string(fromByteCount: file.sizeBytes, countStyle: .file))
         parts.append(file.modifiedDate.formatted(date: .abbreviated, time: .shortened))

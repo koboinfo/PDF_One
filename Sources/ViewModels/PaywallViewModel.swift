@@ -84,7 +84,7 @@ final class PaywallViewModel {
         do {
             try await subscriptionManager.restorePurchases()
             if !subscriptionManager.isProUser {
-                message = "復元できる購入が見つかりませんでした。"
+                message = String(localized: "復元できる購入が見つかりませんでした。")
             }
         } catch {
             message = SubscriptionError.failedVerification.localizedDescription

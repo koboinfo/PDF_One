@@ -28,13 +28,14 @@ final class OfficeToPDFViewModel {
 
     func convert() async {
         guard let selectedURL, let detectedFormat else {
-            errorMessage = "変換するWord/Excel/PowerPointファイルを選択してください。"
+            errorMessage = String(localized: "変換するWord/Excel/PowerPointファイルを選択してください。")
             return
         }
 
         isProcessing = true
         progress = 0
         errorMessage = nil
+        AdMobInterstitialManager.shared.preloadAd()
 
         do {
             let destinationURL = try SavedFileStore.directory()

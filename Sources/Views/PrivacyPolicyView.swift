@@ -3,26 +3,26 @@ import SwiftUI
 struct PrivacyPolicyView: View {
     @Environment(\.dismiss) private var dismiss
 
-    private static let effectiveDate = "2026年8月11日"
+    private static let effectiveDate = String(localized: "2026年8月11日")
     private static let contactEmail = "info.kobo.jp@gmail.com"
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text("制定日：\(Self.effectiveDate)")
+                    Text(String(localized: "制定日：\(Self.effectiveDate)"))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
                     section(
-                        title: "はじめに",
+                        title: String(localized: "はじめに"),
                         body: """
                         PDF One（以下「本アプリ」といいます）は、個人開発により提供されるPDF編集・変換アプリです。本ポリシーは、本アプリにおける利用者情報の取り扱いについて説明するものです。
                         """
                     )
 
                     section(
-                        title: "1. 取得する情報",
+                        title: String(localized: "1. 取得する情報"),
                         body: """
                         本アプリは、利用者を識別する個人情報をサーバー等の外部に送信・収集することはありません。本アプリが取り扱う情報は次のとおりです。
 
@@ -33,14 +33,14 @@ struct PrivacyPolicyView: View {
                     )
 
                     section(
-                        title: "2. 情報の利用目的",
+                        title: String(localized: "2. 情報の利用目的"),
                         body: """
                         取得した情報は、本アプリが提供する機能（PDFの結合・分割・圧縮・変換・編集・署名・OCR等）を実行する目的にのみ使用し、上記目的以外での利用は行いません。
                         """
                     )
 
                     section(
-                        title: "3. 第三者への提供",
+                        title: String(localized: "3. 第三者への提供"),
                         body: """
                         本アプリは広告配信SDK・解析（アナリティクス）SDKを組み込んでおらず、利用者の情報を第三者に提供・共有することはありません。
 
@@ -49,7 +49,7 @@ struct PrivacyPolicyView: View {
                     )
 
                     section(
-                        title: "4. データの保存場所と削除",
+                        title: String(localized: "4. データの保存場所と削除"),
                         body: """
                         利用者が処理したファイルおよび一時キャッシュは、いずれも利用者の端末内にのみ保存されます。本アプリの外部（クラウド等）に保存されることはありません。
 
@@ -58,14 +58,14 @@ struct PrivacyPolicyView: View {
                     )
 
                     section(
-                        title: "5. 権限について",
+                        title: String(localized: "5. 権限について"),
                         body: """
                         本アプリは書類スキャン機能のためにカメラへのアクセス権限を要求します。カメラへのアクセスはOSの設定からいつでも変更・取り消しが可能です。権限を許可しない場合でも、スキャン以外の機能は通常どおりご利用いただけます。
                         """
                     )
 
                     section(
-                        title: "6. サブスクリプション（アプリ内課金）について",
+                        title: String(localized: "6. サブスクリプション（アプリ内課金）について"),
                         body: """
                         本アプリは、一部の機能を利用するための有料サブスクリプション（自動更新型）を提供する場合があります。
 
@@ -77,14 +77,14 @@ struct PrivacyPolicyView: View {
                     )
 
                     section(
-                        title: "7. 本ポリシーの変更",
+                        title: String(localized: "7. 本ポリシーの変更"),
                         body: """
                         法令の変更や本アプリの機能追加に伴い、本ポリシーの内容を予告なく変更する場合があります。変更後の内容は本画面に反映された時点で効力を生じるものとします。
                         """
                     )
 
                     section(
-                        title: "8. お問い合わせ",
+                        title: String(localized: "8. お問い合わせ"),
                         body: """
                         本ポリシーに関するお問い合わせは、下記の連絡先までお願いいたします。
 
@@ -95,11 +95,11 @@ struct PrivacyPolicyView: View {
                 }
                 .padding()
             }
-            .navigationTitle("プライバシーポリシー")
+            .navigationTitle(String(localized: "プライバシーポリシー"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("閉じる") { dismiss() }
+                    Button(String(localized: "閉じる")) { dismiss() }
                 }
             }
         }

@@ -8,7 +8,7 @@ struct ImageToPDFListView: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Button(editMode.isEditing ? "完了" : "編集") {
+                Button(editMode.isEditing ? String(localized: "完了") : String(localized: "編集")) {
                     editMode = editMode.isEditing ? .inactive : .active
                 }
                 .font(.subheadline.weight(.medium))
@@ -17,7 +17,7 @@ struct ImageToPDFListView: View {
             .padding(.top, 4)
 
             List {
-                Section("選択中の画像（\(viewModel.images.count)）") {
+                Section(String(localized: "選択中の画像（\(viewModel.images.count)）")) {
                     ForEach(viewModel.images) { image in
                         ImageThumbnailRow(image: image)
                     }

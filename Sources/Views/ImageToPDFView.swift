@@ -12,8 +12,8 @@ struct ImageToPDFView: View {
 
     var body: some View {
         BaseToolView(
-            title: "画像→PDF",
-            helpText: "複数の画像を選んでまとめて1つのPDFに変換します。並び順は「編集」から入れ替えできます。",
+            title: String(localized: "画像→PDF"),
+            helpText: String(localized: "複数の画像を選んでまとめて1つのPDFに変換します。並び順は「編集」から入れ替えできます。"),
             onDropProviders: viewModel.outputURL == nil ? handleDrop : nil
         ) {
             Group {
@@ -30,7 +30,7 @@ struct ImageToPDFView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "変換中…")
+                NeumorphicProcessingCard(message: String(localized: "変換中…"))
             }
         }
         .photosPicker(isPresented: $isShowingPhotoPicker, selection: $photoPickerItems, matching: .images)
@@ -43,20 +43,20 @@ struct ImageToPDFView: View {
         }
         .sheet(isPresented: $isShowingShareSheet) {
             if let outputURL = viewModel.outputURL {
-                ModernSheet(title: "共有") {
+                ModernSheet(title: String(localized: "共有")) {
                     ActivityView(activityItems: [outputURL])
                 }
             }
         }
         .sheet(isPresented: $isShowingSaveExporter) {
             if let outputURL = viewModel.outputURL {
-                ModernSheet(title: "保存先を選択") {
+                ModernSheet(title: String(localized: "保存先を選択")) {
                     DocumentExporterView(url: outputURL)
                 }
             }
         }
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -71,8 +71,8 @@ struct ImageToPDFView: View {
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "photo.on.rectangle.angled",
-            title: "PDFに変換したい画像をドラッグ＆ドロップ、\nまたは選択してください",
-            actionTitle: "画像を選択"
+            title: String(localized: "PDFに変換したい画像をドラッグ＆ドロップ、\nまたは選択してください"),
+            actionTitle: String(localized: "画像を選択")
         ) {
             isShowingPhotoPicker = true
         }
@@ -85,13 +85,13 @@ struct ImageToPDFView: View {
         } else if !viewModel.images.isEmpty {
             VStack(spacing: 12) {
                 PhotosPicker(selection: $photoPickerItems, matching: .images) {
-                    Label("画像を追加", systemImage: "photo.badge.plus")
+                    Label(String(localized: "画像を追加"), systemImage: "photo.badge.plus")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
 
                 PrimaryButton(
-                    title: "PDFに変換",
+                    title: String(localized: "PDFに変換"),
                     systemImage: "doc.badge.arrow.up",
                     isProcessing: viewModel.isProcessing,
                     isDisabled: viewModel.images.isEmpty
@@ -105,22 +105,22 @@ struct ImageToPDFView: View {
     private func resultActionBar(outputURL: URL) -> some View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
-                PrimaryButton(title: "保存", systemImage: "square.and.arrow.down", style: .bordered) {
+                PrimaryButton(title: String(localized: "保存"), systemImage: "square.and.arrow.down", style: .bordered) {
                     isShowingSaveExporter = true
                 }
-                PrimaryButton(title: "共有", systemImage: "square.and.arrow.up") {
+                PrimaryButton(title: String(localized: "共有"), systemImage: "square.and.arrow.up") {
                     isShowingShareSheet = true
                 }
             }
 
             PrimaryButton(
-                title: "Cloudinaryにアップロード（準備中）",
+                title: String(localized: "Cloudinaryにアップロード（準備中）"),
                 systemImage: "icloud.and.arrow.up",
                 style: .bordered,
                 isDisabled: true
             ) {}
 
-            Button("やり直す") { viewModel.reset() }
+            Button(String(localized: "やり直す")) { viewModel.reset() }
                 .font(.footnote.weight(.medium))
                 .padding(.top, 2)
         }
@@ -186,9 +186,9 @@ private struct ResultView: View {
                     .padding(.top, 24)
 
                 VStack(spacing: 4) {
-                    Text("PDFを作成しました")
+                    Text(String(localized: "PDFを作成しました"))
                         .font(.title3.bold())
-                    Text("下のボタンから保存・共有できます")
+                    Text(String(localized: "下のボタンから保存・共有できます"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -203,7 +203,7 @@ private struct ResultView: View {
         }
     }
 
-    private var pageSummary: String { "\(pageCount)ページ" }
+    private var pageSummary: String { String(localized: "\(pageCount)ページ") }
 }
 
 /// トリム済みの円弧とチェックマークを描画して完了を演出するアニメーション。

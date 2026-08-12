@@ -57,7 +57,7 @@ struct ToolCardView: View {
     }
 
     private var comingSoonBadge: some View {
-        Text("準備中")
+        Text(String(localized: "準備中"))
             .font(.system(size: 10, weight: .semibold))
             .padding(.horizontal, 7)
             .padding(.vertical, 3)
@@ -89,14 +89,14 @@ private struct ToolCardButtonStyle: ButtonStyle {
 
 #Preview {
     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-        ToolCardView(tool: ToolItem(title: "PDF結合", iconType: .merge, route: .merge), action: {})
-        ToolCardView(tool: ToolItem(title: "画像→PDF", iconType: .imageToPDF, route: .imageToPDF), action: {})
+        ToolCardView(tool: ToolItem(title: String(localized: "PDF結合"), iconType: .merge, route: .merge), action: {})
+        ToolCardView(tool: ToolItem(title: String(localized: "画像→PDF"), iconType: .imageToPDF, route: .imageToPDF), action: {})
         ToolCardView(
-            tool: ToolItem(title: "電子署名", iconType: .signature, route: .signature, isPro: true),
+            tool: ToolItem(title: String(localized: "電子署名"), iconType: .signature, route: .signature, isPro: true),
             isLocked: true,
             action: {}
         )
-        ToolCardView(tool: ToolItem(title: "準備中ツール", iconType: .watermark, route: nil), action: {})
+        ToolCardView(tool: ToolItem(title: String(localized: "準備中ツール"), iconType: .watermark, route: nil), action: {})
     }
     .padding(20)
     .background(Color(hue: 0.62, saturation: 0.05, brightness: 0.95))

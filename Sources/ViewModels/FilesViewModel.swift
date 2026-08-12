@@ -11,9 +11,9 @@ final class FilesViewModel {
 
         var label: String {
             switch self {
-            case .dateDescending: return "更新日（新しい順）"
-            case .nameAscending: return "名前順"
-            case .sizeDescending: return "サイズ（大きい順）"
+            case .dateDescending: return String(localized: "更新日（新しい順）")
+            case .nameAscending: return String(localized: "名前順")
+            case .sizeDescending: return String(localized: "サイズ（大きい順）")
             }
         }
     }
@@ -89,7 +89,7 @@ final class FilesViewModel {
         let targets = offsets.map { displayedFiles[$0] }
         let allSucceeded = targets.map(delete).allSatisfy { $0 }
         if allSucceeded {
-            toast = ToastData(style: .success, message: "ファイルを削除しました")
+            toast = ToastData(style: .success, message: String(localized: "ファイルを削除しました"))
         }
     }
 }

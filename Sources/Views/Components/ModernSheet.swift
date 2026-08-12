@@ -32,8 +32,8 @@ extension View {
 #Preview {
     Color.clear
         .sheet(isPresented: .constant(true)) {
-            ModernSheet(title: "プレビュー") {
-                Text("シートの内容")
+            ModernSheet(title: String(localized: "プレビュー")) {
+                Text(String(localized: "シートの内容"))
             }
         }
 }

@@ -18,7 +18,7 @@ final class ScannerViewModel {
 
     func savePDF(from scan: VNDocumentCameraScan) async {
         guard scan.pageCount > 0 else {
-            errorMessage = "スキャンされたページがありません。"
+            errorMessage = String(localized: "スキャンされたページがありません。")
             return
         }
 

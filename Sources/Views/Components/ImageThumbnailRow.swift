@@ -14,7 +14,7 @@ struct ImageThumbnailRow: View {
                     .lineLimit(1)
 
                 if image.isRemote {
-                    Text("リモート")
+                    Text(String(localized: "リモート"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

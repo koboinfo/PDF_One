@@ -34,7 +34,7 @@ final class PDFToJPGViewModel {
 
     func exportAllAsJPEGs() async {
         guard !pages.isEmpty else {
-            errorMessage = "変換するPDFファイルを選択してください。"
+            errorMessage = String(localized: "変換するPDFファイルを選択してください。")
             return
         }
 
