@@ -2,7 +2,6 @@ import SwiftUI
 
 struct MergeFileListView: View {
     @Bindable var viewModel: MergeViewModel
-    @Binding var isShowingShareSheet: Bool
 
     var body: some View {
         List {
@@ -24,13 +23,6 @@ struct MergeFileListView: View {
                     PDFPreviewView(url: outputURL)
                         .frame(height: 240)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                    Button {
-                        isShowingShareSheet = true
-                    } label: {
-                        Label(String(localized: "共有する"), systemImage: "square.and.arrow.up")
-                    }
-                    .tint(ToolIconType.merge.tint)
                 }
             }
         }

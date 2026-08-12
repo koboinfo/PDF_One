@@ -55,13 +55,17 @@ final class SubscriptionManager {
     private let userDefaults: UserDefaults
     private static let isProCacheKey = "com.pdfone.subscription.isProCache"
 
+    /// `Transaction.updates`を継続監視するバックグラウンドタスク。インスタンスの生存期間中保持し、
+    /// `deinit`で明示的にキャンセルする。
+    nonisolated(unsafe) private var transactionListenerTask: Task<Void, Never>?
+
     /// - Parameter autoRefreshOnInit: `false`にすると起動時のプロダクト取得/エンタイトルメント再計算を行わない。
     ///   StoreKitへの実問い合わせができないPreview環境で、注入した購読状態が非同期に上書きされるのを防ぐためのもの。
     init(userDefaults: UserDefaults = .standard, autoRefreshOnInit: Bool = true) {
         self.userDefaults = userDefaults
         isProUser = userDefaults.bool(forKey: Self.isProCacheKey)
 
-        _ = listenForTransactionUpdates()
+        transactionListenerTask = listenForTransactionUpdates()
 
         guard autoRefreshOnInit else { return }
 
@@ -69,6 +73,10 @@ final class SubscriptionManager {
             await loadProducts()
             await refreshEntitlements()
         }
+    }
+
+    deinit {
+        transactionListenerTask?.cancel()
     }
 
     /// 指定プロダクトが購入画面時点でまだ無料トライアルの対象かどうか（過去に同一グループを購読したことがあると`false`になる）。

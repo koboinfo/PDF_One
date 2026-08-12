@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
@@ -113,6 +114,13 @@ struct SettingsView: View {
                         infoRow(icon: "doc.plaintext", title: String(localized: "利用規約"))
                     }
                     .tint(.primary)
+
+                    Button {
+                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                    } label: {
+                        infoRow(icon: "globe", title: String(localized: "言語"), value: currentLanguageLabel)
+                    }
+                    .tint(.primary)
                 }
             }
             .tabBarClearance()
@@ -143,6 +151,10 @@ struct SettingsView: View {
             }
             .toast($viewModel.toast)
         }
+    }
+
+    private var currentLanguageLabel: String {
+        Locale.current.localizedString(forIdentifier: Locale.current.identifier) ?? Locale.current.identifier
     }
 
     private var planLabel: String {

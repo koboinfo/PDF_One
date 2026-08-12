@@ -11,13 +11,15 @@ final class SubscriptionManagerTests: XCTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
-        let configURL = try XCTUnwrap(
-            Bundle(for: Self.self).url(forResource: "Subscriptions", withExtension: "storekit")
-        )
-        session = try SKTestSession(contentsOf: configURL)
+        if let configURL = Bundle(for: Self.self).url(forResource: "Subscriptions", withExtension: "storekit") ?? Bundle.main.url(forResource: "Subscriptions", withExtension: "storekit") {
+            session = try SKTestSession(contentsOf: configURL)
+        } else {
+            session = try SKTestSession(configurationFileNamed: "Subscriptions")
+        }
         session.resetToDefaultState()
         session.clearTransactions()
         session.disableDialogs = true
+        session.timeRate = .realTime
     }
 
     override func tearDownWithError() throws {
@@ -35,6 +37,22 @@ final class SubscriptionManagerTests: XCTestCase {
 
     private func testTransaction(for productID: SubscriptionProductID) throws -> SKTestTransaction {
         try XCTUnwrap(session.allTransactions().first { $0.productIdentifier == productID.rawValue })
+    }
+
+    /// `SKTestSession`側の状態変更（解約・失効・返金）が`Transaction.updates`経由で
+    /// `SubscriptionManager`に反映されるまで、固定スリープの代わりに短間隔でポーリングして待つ。
+    /// タイムアウトしても最後に`refreshEntitlements()`を呼んで確定状態にする。
+    private func waitUntil(
+        timeout: TimeInterval = 3,
+        condition: () -> Bool,
+        manager: SubscriptionManager
+    ) async {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition(), Date() < deadline {
+            await manager.refreshEntitlements()
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
+        await manager.refreshEntitlements()
     }
 
     // MARK: - Products
@@ -128,7 +146,7 @@ final class SubscriptionManagerTests: XCTestCase {
 
         let transaction = try testTransaction(for: .monthly)
         try session.disableAutoRenewForTransaction(identifier: transaction.identifier)
-        await manager.refreshEntitlements()
+        await waitUntil(condition: { manager.activeProductID == SubscriptionProductID.monthly.rawValue }, manager: manager)
 
         // 自動更新をオフにしても、現在の契約期間が終わるまではProアクセスを維持する。
         XCTAssertTrue(manager.isProUser)
@@ -145,7 +163,7 @@ final class SubscriptionManagerTests: XCTestCase {
         XCTAssertTrue(manager.isProUser)
 
         try session.expireSubscription(productIdentifier: SubscriptionProductID.monthly.rawValue)
-        await manager.refreshEntitlements()
+        await waitUntil(condition: { !manager.isProUser }, manager: manager)
 
         XCTAssertFalse(manager.isProUser)
         XCTAssertTrue(manager.purchasedProductIDs.isEmpty)
@@ -163,7 +181,7 @@ final class SubscriptionManagerTests: XCTestCase {
 
         let transaction = try testTransaction(for: .monthly)
         try session.refundTransaction(identifier: transaction.identifier)
-        await manager.refreshEntitlements()
+        await waitUntil(condition: { !manager.isProUser }, manager: manager)
 
         XCTAssertFalse(manager.isProUser)
     }
@@ -227,7 +245,7 @@ final class SubscriptionManagerTests: XCTestCase {
         XCTAssertFalse(manager.isAdBannerVisible)
 
         try session.expireSubscription(productIdentifier: SubscriptionProductID.monthly.rawValue)
-        await manager.refreshEntitlements()
+        await waitUntil(condition: { !manager.isProUser }, manager: manager)
 
         XCTAssertFalse(manager.isProUser)
         XCTAssertTrue(manager.isAdBannerVisible, "購読が失効したら広告バナーの表示が復活するべき（スクロール領域の余白も再確保される）")
