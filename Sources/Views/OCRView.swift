@@ -20,8 +20,8 @@ struct OCRView: View {
 
     private var toolContent: some View {
         BaseToolView(
-            title: "TXT抽出/OCR",
-            helpText: "PDFからテキストを抽出します。コピーやTXTファイルとしての保存ができます。"
+            title: String(localized: "TXT抽出/OCR"),
+            helpText: String(localized: "PDFからテキストを抽出します。コピーやTXTファイルとしての保存ができます。")
         ) {
             Group {
                 if viewModel.selectedURL == nil {
@@ -34,7 +34,7 @@ struct OCRView: View {
         .overlay {
             if viewModel.isProcessing {
                 NeumorphicProcessingCard(
-                    message: "テキストを認識中…\(Int(viewModel.progress * 100))%",
+                    message: String(localized: "テキストを認識中…\(Int(viewModel.progress * 100))%"),
                     progress: viewModel.progress
                 )
             }
@@ -54,7 +54,7 @@ struct OCRView: View {
         }
         .toast($toast)
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -69,8 +69,8 @@ struct OCRView: View {
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "text.viewfinder",
-            title: "テキストを抽出したいPDFファイルを選択してください",
-            actionTitle: "PDFを選択"
+            title: String(localized: "テキストを抽出したいPDFファイルを選択してください"),
+            actionTitle: String(localized: "PDFを選択")
         ) {
             isShowingImporter = true
         }
@@ -78,15 +78,15 @@ struct OCRView: View {
 
     private var ocrForm: some View {
         Form {
-            Section("選択中のファイル") {
+            Section(String(localized: "選択中のファイル")) {
                 Label(viewModel.selectedURL?.lastPathComponent ?? "", systemImage: "doc.text")
                     .lineLimit(1)
-                Button("別のファイルを選択") { isShowingImporter = true }
+                Button(String(localized: "別のファイルを選択")) { isShowingImporter = true }
             }
 
             Section {
                 PrimaryButton(
-                    title: "テキストを抽出",
+                    title: String(localized: "テキストを抽出"),
                     systemImage: "text.viewfinder",
                     isProcessing: viewModel.isProcessing,
                     isDisabled: !viewModel.canExtract
@@ -96,22 +96,22 @@ struct OCRView: View {
             }
 
             if !viewModel.extractedText.isEmpty {
-                Section("抽出結果") {
+                Section(String(localized: "抽出結果")) {
                     TextEditor(text: .constant(viewModel.extractedText))
                         .frame(minHeight: 240)
 
                     Button {
                         viewModel.copyToClipboard()
-                        toast = ToastData(style: .success, message: "コピーしました")
+                        toast = ToastData(style: .success, message: String(localized: "コピーしました"))
                     } label: {
-                        Label("コピー", systemImage: "doc.on.doc")
+                        Label(String(localized: "コピー"), systemImage: "doc.on.doc")
                     }
 
                     Button {
                         viewModel.saveAsTextFile()
                         isShowingShareSheet = true
                     } label: {
-                        Label("TXTで保存", systemImage: "square.and.arrow.down")
+                        Label(String(localized: "TXTで保存"), systemImage: "square.and.arrow.down")
                     }
                 }
             }

@@ -6,11 +6,12 @@ struct MergeView: View {
     @State private var isShowingPicker = false
     @State private var isShowingShareSheet = false
     @State private var toast: ToastData?
+    @State private var isShowingPaywall = false
 
     var body: some View {
         BaseToolView(
-            title: "PDF結合",
-            helpText: "複数のPDFファイルを選択順に1つのPDFへ結合します。並び替えや削除は一覧からできます。",
+            title: String(localized: "PDF結合"),
+            helpText: String(localized: "複数のPDFファイルを選択順に1つのPDFへ結合します。並び替えや削除は一覧からできます。"),
             onDropProviders: handleDrop
         ) {
             Group {
@@ -25,27 +26,30 @@ struct MergeView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "結合中…")
+                NeumorphicProcessingCard(message: String(localized: "結合中…"))
             }
         }
         .toast($toast)
         .filePicker(.pdf(), isPresented: $isShowingPicker) { newURLs in
             viewModel.selectedURLs.append(contentsOf: newURLs)
         }
-        .sheet(isPresented: $isShowingShareSheet) {
+        .sheet(isPresented: $isShowingShareSheet, onDismiss: presentAdIfEligible) {
             if let outputURL = viewModel.outputURL {
-                ModernSheet(title: "共有") {
+                ModernSheet(title: String(localized: "共有")) {
                     ActivityView(activityItems: [outputURL])
                 }
             }
         }
         .onChange(of: viewModel.outputURL) { _, newValue in
             guard newValue != nil else { return }
-            toast = ToastData(style: .success, message: "PDFを結合しました")
+            toast = ToastData(style: .success, message: String(localized: "PDFを結合しました"))
             isShowingShareSheet = true
         }
+        .sheet(isPresented: $isShowingPaywall) {
+            PaywallView()
+        }
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -60,8 +64,8 @@ struct MergeView: View {
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "doc.on.doc",
-            title: "結合したいPDFファイルを\nドラッグ＆ドロップ、またはタップして選択してください",
-            actionTitle: "PDFを選択"
+            title: String(localized: "結合したいPDFファイルを\nドラッグ＆ドロップ、またはタップして選択してください"),
+            actionTitle: String(localized: "PDFを選択")
         ) {
             isShowingPicker = true
         }
@@ -72,7 +76,7 @@ struct MergeView: View {
         if !viewModel.selectedURLs.isEmpty {
             VStack(spacing: 12) {
                 PrimaryButton(
-                    title: "ファイルを追加",
+                    title: String(localized: "ファイルを追加"),
                     systemImage: "doc.badge.plus",
                     style: .bordered
                 ) {
@@ -80,7 +84,7 @@ struct MergeView: View {
                 }
 
                 PrimaryButton(
-                    title: "PDFを結合する",
+                    title: String(localized: "PDFを結合する"),
                     systemImage: "square.and.arrow.down.on.square",
                     isProcessing: viewModel.isProcessing,
                     isDisabled: viewModel.selectedURLs.isEmpty
@@ -114,6 +118,13 @@ struct MergeView: View {
             provider.loadDataRepresentation(for: .pdf) { data, _ in
                 continuation.resume(returning: data)
             }
+        }
+    }
+
+    private func presentAdIfEligible() {
+        guard let vc = AdMobInterstitialManager.rootViewController else { return }
+        AdMobInterstitialManager.shared.showAdIfEligible(from: vc) { didShowAd in
+            isShowingPaywall = didShowAd
         }
     }
 

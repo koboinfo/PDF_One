@@ -192,6 +192,7 @@ actor PDFService: PDFServiceProtocol {
         }
 
         guard mergedDocument.write(to: outputURL) else {
+            try? FileManager.default.removeItem(at: outputURL)
             throw PDFServiceError.fileWriteFailed(
                 underlying: NSError(domain: "PDFService.mergePDFs", code: -1)
             )

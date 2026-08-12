@@ -6,11 +6,12 @@ struct CompressView: View {
     @State private var isShowingPicker = false
     @State private var isShowingShareSheet = false
     @State private var toast: ToastData?
+    @State private var isShowingPaywall = false
 
     var body: some View {
         BaseToolView(
-            title: "圧縮",
-            helpText: "PDFの各ページをJPEGに再エンコードしてファイルサイズを圧縮します。圧縮強度は低・中・高から選べます。"
+            title: String(localized: "圧縮"),
+            helpText: String(localized: "PDFの各ページをJPEGに再エンコードしてファイルサイズを圧縮します。圧縮強度は低・中・高から選べます。")
         ) {
             Group {
                 if viewModel.selectedURL == nil {
@@ -22,7 +23,7 @@ struct CompressView: View {
         }
         .overlay {
             if viewModel.isProcessing {
-                NeumorphicProcessingCard(message: "圧縮中…")
+                NeumorphicProcessingCard(message: String(localized: "圧縮中…"))
             }
         }
         .toast($toast)
@@ -30,20 +31,23 @@ struct CompressView: View {
             guard let url = newURLs.first else { return }
             viewModel.selectedURL = url
         }
-        .sheet(isPresented: $isShowingShareSheet) {
+        .sheet(isPresented: $isShowingShareSheet, onDismiss: presentAdIfEligible) {
             if let outputURL = viewModel.outputURL {
-                ModernSheet(title: "共有") {
+                ModernSheet(title: String(localized: "共有")) {
                     ActivityView(activityItems: [outputURL])
                 }
             }
         }
         .onChange(of: viewModel.outputURL) { _, newValue in
             guard newValue != nil else { return }
-            toast = ToastData(style: .success, message: "PDFを圧縮しました")
+            toast = ToastData(style: .success, message: String(localized: "PDFを圧縮しました"))
             isShowingShareSheet = true
         }
+        .sheet(isPresented: $isShowingPaywall) {
+            PaywallView()
+        }
         .alert(
-            "エラー",
+            String(localized: "エラー"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }
@@ -55,11 +59,18 @@ struct CompressView: View {
         }
     }
 
+    private func presentAdIfEligible() {
+        guard let vc = AdMobInterstitialManager.rootViewController else { return }
+        AdMobInterstitialManager.shared.showAdIfEligible(from: vc) { didShowAd in
+            isShowingPaywall = didShowAd
+        }
+    }
+
     private var emptyStateView: some View {
         EmptyStateView(
             systemImage: "arrow.down.right.and.arrow.up.left",
-            title: "圧縮したいPDFファイルを選択してください",
-            actionTitle: "PDFを選択"
+            title: String(localized: "圧縮したいPDFファイルを選択してください"),
+            actionTitle: String(localized: "PDFを選択")
         ) {
             isShowingPicker = true
         }
@@ -67,21 +78,21 @@ struct CompressView: View {
 
     private var compressionForm: some View {
         Form {
-            Section("選択中のファイル") {
+            Section(String(localized: "選択中のファイル")) {
                 Label(viewModel.selectedURL?.lastPathComponent ?? "", systemImage: "doc.text")
                     .lineLimit(1)
 
                 if let originalFileSizeBytes = viewModel.originalFileSizeBytes {
-                    LabeledContent("元のサイズ", value: CompressViewModel.formattedFileSize(originalFileSizeBytes))
+                    LabeledContent(String(localized: "元のサイズ"), value: CompressViewModel.formattedFileSize(originalFileSizeBytes))
                 }
 
-                Button("別のファイルを選択") {
+                Button(String(localized: "別のファイルを選択")) {
                     isShowingPicker = true
                 }
             }
 
-            Section("圧縮強度") {
-                Picker("圧縮強度", selection: $viewModel.compressionQuality) {
+            Section(String(localized: "圧縮強度")) {
+                Picker(String(localized: "圧縮強度"), selection: $viewModel.compressionQuality) {
                     ForEach(PDFCompressionQuality.selectableQualities, id: \.self) { quality in
                         Text(quality.label).tag(quality)
                     }
@@ -90,18 +101,18 @@ struct CompressView: View {
             }
 
             if viewModel.outputURL != nil {
-                Section("圧縮結果") {
+                Section(String(localized: "圧縮結果")) {
                     if let compressedFileSizeBytes = viewModel.compressedFileSizeBytes {
-                        LabeledContent("圧縮後のサイズ", value: CompressViewModel.formattedFileSize(compressedFileSizeBytes))
+                        LabeledContent(String(localized: "圧縮後のサイズ"), value: CompressViewModel.formattedFileSize(compressedFileSizeBytes))
                     }
                     if let reductionPercentText = viewModel.reductionPercentText {
-                        LabeledContent("削減率", value: reductionPercentText)
+                        LabeledContent(String(localized: "削減率"), value: reductionPercentText)
                     }
 
                     Button {
                         isShowingShareSheet = true
                     } label: {
-                        Label("共有する", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "共有する"), systemImage: "square.and.arrow.up")
                     }
                     .tint(ToolIconType.compress.tint)
                 }
@@ -109,7 +120,7 @@ struct CompressView: View {
 
             Section {
                 PrimaryButton(
-                    title: "圧縮する",
+                    title: String(localized: "圧縮する"),
                     systemImage: "arrow.down.circle.fill",
                     isProcessing: viewModel.isProcessing
                 ) {
