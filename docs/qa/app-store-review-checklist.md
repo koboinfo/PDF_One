@@ -5,16 +5,16 @@
 
 > 本チェックリストはコードベース（`Sources/`）・既存ドキュメント（`docs/app-store-metadata.md`、`docs/privacy-policy.md`等）を突き合わせて作成した。`README.md`のOffice変換「Mock」・プライバシーポリシー「ダミー表示」という古い記述は2026-08-11に実装状況（`PDFService.convertToOffice`/`convertOfficeToPDF`は実変換ロジック、`PrivacyPolicyView`は実文面）に合わせて修正済み。
 >
-> **一方、`SubscriptionManager`（StoreKit 2）はマネージャー層のみ実装され、ペイウォールUI・機能ゲート・復元ボタンは未実装（詳細はセクション7参照）。** v1.0はサブスク込みで申請する方針のため、これらが揃うまでは本チェックリスト全体が「申請可」の状態にはならない。
+> **2026-08-13時点で再レビュー。** ペイウォールUI・機能ゲート・「購入を復元」ボタンは実装済み（セクション7参照、主要ブロッカーは解消）。一方、この間にGoogle Mobile Ads SDK（広告）・Apple IDでのサインイン機能が追加されており、セクション1・2の「データ収集なし」前提が成立しなくなっている点に注意（詳細は各項目参照）。
 
 ## 1. Guideline 5.1.1 — プライバシー（データ収集・保存）
 
 | # | 項目 | 現状確認 | 判定 |
 |---|---|---|---|
-| 1-1 | 個人情報・利用データを外部送信していないこと | 全処理がPDFKit/Vision/VisionKit等Apple標準フレームワークのみで完結。ネットワーク通信コード・サードパーティSDKはソース上に存在しない（`grep`で外部依存ゼロを確認済み） | ✅ 現状問題なし |
-| 1-2 | プライバシーポリシーの実文面がアプリ内に存在すること | `PrivacyPolicyView.swift`に実文面が実装済み（ダミーではない）。設定画面からアクセス可能 | ✅ 実装済み（HANDOFF.mdの「ダミー表示」記載は古いため要修正） |
-| 1-3 | App Store Connect「App情報」に登録するプライバシーポリシーURLが**一般公開されたWebページ**であること | `docs/privacy-policy.html`はリポジトリ内のローカルファイルであり、公開URLとしてホスティングされているか未確認 | ⚠️ **要確認**: GitHub Pages・自前ドメイン等どこかに公開し、そのURLをApp Store Connectに登録する必要がある。未公開なら審査以前にApp Store Connect側で申請不可 |
-| 1-4 | App Privacyアンケート（プライバシー"栄養成分表示"）が実態と一致していること | データ収集なし・トラッキングなし・広告SDKなしのため「データは収集されません（Data Not Collected）」を選択できる状態 | ✅ 選択肢の裏付けあり。**App Store Connect提出フォーム側で実際にこの選択がされているか**は別途確認が必要 |
+| 1-1 | 個人情報・利用データを外部送信していないこと | PDF処理自体はPDFKit/Vision/VisionKit等Apple標準フレームワークのみで完結し外部送信なし。**ただし無料版はGoogle Mobile Ads SDK（広告）を組み込んでおり、ATT許可後は広告識別子（IDFA）等がGoogleに送信される** | ⚠️ PDF処理データは送信されないが「外部送信一切なし」は不正確。プライバシーポリシー（更新済み）・App Privacyアンケートで正確に開示すること |
+| 1-2 | プライバシーポリシーの実文面がアプリ内に存在すること | `PrivacyPolicyView.swift`に実文面が実装済み（ダミーではない）。設定画面からアクセス可能。**広告SDK・サインイン機能に関する記載を2026-08-13に追記済み（アプリ内表示側の文言も同期が必要）** | ⚠️ アプリ内`PrivacyPolicyView`の文言が最新のプライバシーポリシーhtml/mdと一致しているか確認・同期すること |
+| 1-3 | App Store Connect「App情報」に登録するプライバシーポリシーURLが**一般公開されたWebページ**であること | GitHub Pagesで公開済み: https://koboinfo.github.io/pdf-one-legal/privacy-policy.html （2026-08-13） | ✅ 対応済み。App Store ConnectのURL欄に設定すること |
+| 1-4 | App Privacyアンケート（プライバシー"栄養成分表示"）が実態と一致していること | 広告SDK導入により「データは収集されません」は選択不可。広告識別子（Identifiers → Device ID等）を「トラッキングに使用」「広告に使用」として申告する必要がある | 🛑 **要対応**: ASC提出時にApp Privacyアンケートを広告SDKの実態に合わせて回答すること。誤った「データ収集なし」申告はガイドライン違反（虚偽申告）になる |
 | 1-5 | Privacy Manifest（`PrivacyInfo.xcprivacy`）の存在とRequired Reason API宣言の網羅性 | `Sources/App/PrivacyInfo.xcprivacy`は存在し、`NSPrivacyAccessedAPICategoryFileTimestamp`（理由コード`C617.1`）を宣言済み | ⚠️ `PDFService.checkFileSize`等で`FileManager.attributesOfItem(...)[.size]`（ファイルサイズ属性）を取得している箇所があり、これがRequired Reason APIの別カテゴリ（File size / System boot time等）に該当しないか2026年時点の最新API一覧で再確認すること。該当する場合は理由コード追加が必要 |
 | 1-6 | カメラ権限の使用目的説明文（`NSCameraUsageDescription`）が具体的であること | 「書類をスキャンしてPDFを作成するためにカメラを使用します。」— 目的が明確 | ✅ 問題なし |
 | 1-7 | 写真ライブラリアクセスが`PhotosPicker`（システム標準ピッカー）経由であること | `import PhotosUI`使用を確認。`PHPhotoLibrary`への直接アクセスやフルライブラリ権限要求のコードは見当たらない | ✅ システム標準ピッカー使用のため`NSPhotoLibraryUsageDescription`不要な設計を維持できている（要件を満たす限り追加権限文言は不要） |
@@ -24,8 +24,8 @@
 
 | # | 項目 | 現状確認 | 判定 |
 |---|---|---|---|
-| 2-1 | 第三者への情報提供がないこと | 広告SDK・解析SDKなし。プライバシーポリシーにも明記 | ✅ 問題なし |
-| 2-2 | ユーザーが処理したPDF/Office文書の内容が外部サーバーに送信されないこと | 全変換処理がオンデバイス（`OfficeDocumentBuilder`/`OfficeDocumentReader`等はローカルのZIP/XMLパーサー）。ネットワークコード不在 | ✅ 問題なし。**審査担当者向けApp Review Notesにも明記して誤解を防ぐことを推奨**（オフライン動作を審査員が確認しやすくするため） |
+| 2-1 | 第三者への情報提供がないこと | 無料版はGoogle Mobile Ads SDK経由で広告識別子等をGoogleに提供する（プライバシーポリシーに開示済み）。それ以外の解析SDK等はなし | ⚠️ 「提供なし」ではなく「広告SDK経由の提供あり、開示済み」が正確な状態。App Privacyアンケートとの整合が必要（1-4参照） |
+| 2-2 | ユーザーが処理したPDF/Office文書の内容が外部サーバーに送信されないこと | 全変換処理がオンデバイス（`OfficeDocumentBuilder`/`OfficeDocumentReader`等はローカルのZIP/XMLパーサー）。ネットワークコードは広告SDK関連を除き不在 | ✅ 問題なし。**審査担当者向けApp Review Notesに「PDF/Office文書の内容自体は通信を一切行わない」旨を明記することを推奨**（広告SDKの存在と混同されないため） |
 
 ## 3. Guideline 2.5.2 — アプリのパフォーマンス
 
@@ -33,8 +33,8 @@
 |---|---|---|---|
 | 3-1 | 端末の機能・性能に見合った動作であること（過度なリソース消費でOSやデバイスに悪影響を与えない） | `docs/qa/device-verification-checklist.md`のメモリ・発熱項目で実機検証必須。特にサイズ上限チェックのない機能（結合・圧縮・分割・透かし・ページ編集・パスワード保護・署名）への超大容量ファイル投入時のJetsam発生リスクあり | ⚠️ **実機検証結果待ち**。Jetsamが頻発する場合は審査でリジェクトされ得るため、ファイルサイズ上限ガードの追加を検討 |
 | 3-2 | クラッシュ・フリーズがないこと | ユニットテスト23件は正常系・一部異常系をカバーするが、`docs/qa/edge-case-test-scenarios.md`記載の意地悪ケース（0バイト・破損ファイル・Zip Bomb等）は未検証 | ⚠️ 実機・意地悪テスト完了後に判定 |
-| 3-3 | Office変換の進捗表示が実処理と乖離していないこと | `OfficeConvertViewModel.convert()`は実変換（`async let conversionResult`）と並行して**固定2秒（20ステップ×100ms）のダミー進捗アニメーション**を走らせ、実変換がそれより長くかかる場合はプログレスバーが100%到達後も待機状態が続く | ⚠️ ガイドライン違反ではないが、実ファイルでの体感が「進捗バーが100%なのに終わらない」とならないか要確認。特に大容量PDFのOffice変換で顕在化しやすい |
-| 3-4 | `PDFService.inspect(url:)`が未実装（`fatalError`）のまま製品コードに残っていないこと | 現状呼び出し箇所はないが、`fatalError`を含む未実装関数がプロトコルに残っている状態は将来のリグレッションでクラッシュを誘発するリスク | ⚠️ 呼び出されないことをコードレビューで再確認。可能なら製品出荷前に例外throwへ置き換えるか削除を推奨 |
+| 3-3 | Office変換の進捗表示が実処理と乖離していないこと | `OfficeConvertViewModel.convert()`は実変換処理からのコールバック（`progressHandler`）で`progress`を更新する実装に変更済み。ダミー固定アニメーションは存在しない | ✅ 解消済み（2026-08-13確認） |
+| 3-4 | `PDFService.inspect(url:)`が未実装（`fatalError`）のまま製品コードに残っていないこと | `nonisolated func inspect(url:)`は`PDFDocument`からページ数・ファイルサイズ・タイトルを返す実装になっており、`fatalError`は存在しない | ✅ 解消済み（2026-08-13確認） |
 | 3-5 | バックグラウンド遷移時に処理が破綻しないこと | `scenePhase`監視・`beginBackgroundTask`が未実装。`device-verification-checklist.md`セクション3参照 | ⚠️ 実機検証必須。フリーズ・不整合UIが再現する場合は審査前に修正推奨 |
 
 ## 4. Guideline 2.1 / 2.3.1 — アプリの完成度・メタデータの正確性
@@ -45,6 +45,7 @@
 | 4-2 | プレースホルダー・仮テキスト・デバッグ表示が製品ビルドに残っていないこと | `PrivacyPolicyView`は実文面化済み。他画面（ヘルプ文言等）にダミーテキストが残っていないか全画面を目視レビュー | ⚠️ 未確認。QA工程で全画面のUIレビューを実施すること |
 | 4-3 | スクリーンショット（`docs/screenshot-copy.md`）が最新UIと一致していること | ファイルは存在するが、実機/最新シミュレータでの見た目と乖離していないか未確認 | ⚠️ 申請直前に実機スクリーンショットで再撮影・突合すること |
 | 4-4 | リリースノート（`docs/release-notes.md`）の内容が実際の変更点と一致していること | 内容未突合 | ⚠️ 申請前に最終確認 |
+| 4-5 | 広告SDKが本番用の設定になっていること | `project.yml`の`GADApplicationIdentifier`がGoogle公式のテスト用サンプルID（`ca-app-pub-3940256099942544~1458002511`）のまま（2026-08-13確認） | 🛑 **要対応**: Google AdMobで実際のアプリ・広告ユニットを作成し、本番のApp ID・広告ユニットIDに差し替えること。テストID・テスト広告ユニットのまま申請するとGoogleポリシー違反・審査リジェクトのリスクがある |
 
 ## 5. Guideline 2.3.9 / 輸出コンプライアンス（暗号化）
 
@@ -59,20 +60,20 @@
 | 6-1 | Webビューのラッパーに留まらない、ネイティブ機能を持つこと | PDFKit/Vision/VisionKit/PencilKitを用いたネイティブ機能が12種実装済み | ✅ 問題なし |
 | 6-2 | 既存アプリと差別化される独自価値があること | PDF↔Office双方向変換・OCR・電子署名・透かし等を単一アプリで完結、かつオンデバイス処理を強みとして訴求 | ✅ 問題なし（マーケティング上の訴求ポイントとしても有効） |
 
-## 7. Guideline 3.1.1 / 3.1.2 — 自動更新サブスクリプション（PDF One Pro、v1.0で導入予定）
+## 7. Guideline 3.1.1 / 3.1.2 — 自動更新サブスクリプション（PDF One Pro）
 
-> v1.0はサブスクリプション（`com.pdfone.pro.monthly` / `com.pdfone.pro.yearly`）込みで申請する方針（2026-08-11決定）。以下は現状のギャップ一覧。**7-2〜7-4が未解消の間は申請不可。**
+> v1.0はサブスクリプション（`com.pdfone.pro.monthly` / `com.pdfone.pro.yearly`）込みで申請する方針。**2026-08-13時点で7-1〜7-5（コード側）は実装済みを確認。残るはASC側の設定（7-6〜7-8）と実機でのフロー確認（7-7）。**
 
 | # | 項目 | 現状確認 | 判定 |
 |---|---|---|---|
-| 7-1 | `SubscriptionManager`（StoreKit 2）の実装状況 | `Transaction.updates`監視・購読状態の即時反映ロジックは実装済み（未コミット） | ✅ マネージャー層は実装済み |
-| 7-2 | ペイウォールUI・購入導線の実装 | `SubscriptionManager`はコード内のどのView/ViewModelからも参照されていない（`grep`で確認済み）。購入ボタン・価格表示・Pro訴求画面が存在しない | 🛑 **未実装。申請前に必須** |
-| 7-3 | 機能ゲート（無料/Pro機能の切り分け）の実装 | 11ツール全てがゲートなしで利用可能な状態。どの機能をProにするか自体が未確定（[app-store-metadata.md](../app-store-metadata.md)参照） | 🛑 **方針決定＋実装が必須** |
-| 7-4 | 「購入を復元」ボタンの実装（Guideline必須要件） | 未実装 | 🛑 **申請前に必須**（Appleは復元導線がないアプリをリジェクトする） |
-| 7-5 | サブスクリプション利用規約（Appleひな形＋自社利用規約へのリンク） | `docs/terms-of-service.md`にサブスクリプション条項なし。App概要文にもEULA/利用規約へのリンクが必要（Guideline 3.1.2(a)） | ⚠️ 利用規約への購読条項追記＋概要文にリンク追加が必要 |
-| 7-6 | App Store Connect側のサブスクリプショングループ・価格・ローカライズ設定 | 未作成（ASC作業） | ⚠️ ASC側で「サブスクリプショングループ」作成、月額/年額プロダクトの価格・表示名・説明文（日本語）を登録する必要あり |
-| 7-7 | `Subscriptions.storekit`でのローカル購入/復元フロー動作確認 | スキームには紐付け済みだが、7-2実装後でないと動作確認できない | ⚠️ 7-2実装後にシミュレータ/実機でテスト必須 |
-| 7-8 | 有料アプリ契約（Paid Apps Agreement）の締結状況 | App Store Connect「契約/税金/口座情報」で未確認 | ⚠️ 未締結の場合、IAPを含むビルドが審査に出せないため要確認 |
+| 7-1 | `SubscriptionManager`（StoreKit 2）の実装状況 | `Transaction.updates`監視・購読状態の即時反映ロジックを実装済み。監視タスクの明示的キャンセル（リーク対策）も2026-08-13に追加しコミット済み | ✅ 実装済み |
+| 7-2 | ペイウォールUI・購入導線の実装 | `ToolsView`が`tool.isPro && !isProUser`判定でタップ時に`PaywallView`をシート表示。Pro対象5View自身も直接ガードする二重構成 | ✅ 実装済み |
+| 7-3 | 機能ゲート（無料/Pro機能の切り分け）の実装 | 電子署名・OCR・透かし・PDF→Office・Office→PDFの5ツールを`ToolItem.isPro`でPro指定、残り6ツールは無料 | ✅ 実装済み |
+| 7-4 | 「購入を復元」ボタンの実装（Guideline必須要件） | `PaywallViewModel`・`SettingsView`に復元導線を実装済み | ✅ 実装済み |
+| 7-5 | サブスクリプション利用規約（Appleひな形＋自社利用規約へのリンク） | `docs/terms-of-service.md`第11条に購読条項を記載済み（利用規約は2026-08-13にGitHub Pagesで公開: https://koboinfo.github.io/pdf-one-legal/terms-of-service.html ） | ✅ 実装済み。App概要文からのリンク設置はASC入力時に対応 |
+| 7-6 | App Store Connect側のサブスクリプショングループ・価格・ローカライズ設定 | 未作成（ASC作業、Team ID確定後にASCへアクセス可能になり次第着手） | ⚠️ ASC側で「サブスクリプショングループ」作成、月額/年額プロダクトの価格・表示名・説明文（日本語）を登録する必要あり |
+| 7-7 | `Subscriptions.storekit`でのローカル購入/復元フロー動作確認 | コードは実装済みだが、この開発環境では`SKTestSession`が`SKInternalErrorDomain Code=3`で機能せず、`SubscriptionManagerTests`（10件）が実行不能（2026-08-13再確認）。ビルド・他101件のテストは成功 | ⚠️ Xcode GUIでの`Cmd+U`実行、Mac再起動、または実機での確認が必要（HANDOFF.md記載の既知の環境問題） |
+| 7-8 | 有料アプリ契約（Paid Apps Agreement）の締結状況 | App Store Connect「契約/税金/口座情報」で未確認（Developer Program登録完了後に確認可能） | ⚠️ 未締結の場合、IAPを含むビルドが審査に出せないため要確認 |
 
 ## 8. 審査ノート（App Review Information）作成時の推奨記載事項
 
@@ -96,3 +97,5 @@
 - [ ] **（サブスク関連）** App Store Connectでサブスクリプショングループ・価格・ローカライズ説明文を設定した
 - [ ] **（サブスク関連）** 有料アプリ契約（Paid Apps Agreement）が締結済みであることを確認した
 - [ ] **（サブスク関連）** `docs/terms-of-service.md`に購読条項を追記し、App概要文からリンクした
+- [ ] AdMobの本番App ID・広告ユニットIDに差し替えた（テストIDのまま申請しない）
+- [ ] App Privacyアンケートで広告識別子（IDFA）のトラッキング利用を正確に申告した（「データ収集なし」は選択しない）
