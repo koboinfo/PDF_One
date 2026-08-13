@@ -47,9 +47,9 @@
 |---|---|---|
 | キーワード（100文字） | [app-store-metadata.md](../app-store-metadata.md)記載の99/100文字案 | ✅ |
 | プロモーションテキスト（170文字、随時更新可） | 未作成。初回は概要文冒頭の要約を流用可 | ⚠️ 要作成（審査不要で後から変更できるため優先度は中） |
-| サポートURL | 未定（GitHub Pages等での公開が必要） | ⚠️ 要用意 |
+| サポートURL | https://koboinfo.github.io/pdf-one-legal/ （2026-08-13、GitHub Pagesで公開済み） | ✅ |
 | マーケティングURL（任意） | 未定 | ⚠️ 任意 |
-| プライバシーポリシーURL | `docs/privacy-policy.html`は**未公開のローカルファイル**。公開URLが必須 | 🛑 **要対応**（[submission-readiness-report.md](submission-readiness-report.md)参照） |
+| プライバシーポリシーURL | https://koboinfo.github.io/pdf-one-legal/privacy-policy.html （2026-08-13公開。利用規約は https://koboinfo.github.io/pdf-one-legal/terms-of-service.html ） | ✅ |
 
 ## 5. 年齢制限分類（Age Rating）
 
