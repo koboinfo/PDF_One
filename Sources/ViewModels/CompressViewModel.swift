@@ -31,7 +31,8 @@ final class CompressViewModel {
             return nil
         }
         let reduction = 1 - Double(compressedFileSizeBytes) / Double(originalFileSizeBytes)
-        return String(format: String(localized: "%.0f%%削減"), max(0, reduction) * 100)
+        let percentText = max(0, reduction).formatted(.percent.precision(.fractionLength(0)))
+        return String(localized: "\(percentText)削減")
     }
 
     func compressPDF() async {

@@ -33,8 +33,10 @@ struct OCRView: View {
         }
         .overlay {
             if viewModel.isProcessing {
+                let truncatedProgress = Double(Int(viewModel.progress * 100)) / 100
+                let percentText = truncatedProgress.formatted(.percent.precision(.fractionLength(0)))
                 NeumorphicProcessingCard(
-                    message: String(localized: "テキストを認識中…\(Int(viewModel.progress * 100))%"),
+                    message: String(localized: "テキストを認識中…\(percentText)"),
                     progress: viewModel.progress
                 )
             }
