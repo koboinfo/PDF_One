@@ -47,6 +47,17 @@ struct ModernTabBar: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityIdentifier(for: tab))
+    }
+
+    private func accessibilityIdentifier(for tab: AppTab) -> String {
+        switch tab {
+        case .home: return "tab.home"
+        case .files: return "tab.files"
+        case .tools: return "tab.tools"
+        case .scanner: return "tab.scanner"
+        case .settings: return "tab.settings"
+        }
     }
 }
 

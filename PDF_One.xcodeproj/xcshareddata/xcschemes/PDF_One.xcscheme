@@ -35,6 +35,20 @@
                ReferencedContainer = "container:PDF_One.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B1B4B0B7E39134373B8857D5"
+               BuildableName = "PDF_OneUITests.xctest"
+               BlueprintName = "PDF_OneUITests"
+               ReferencedContainer = "container:PDF_One.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -61,6 +75,17 @@
                BlueprintIdentifier = "59D83DD601E51A4E72A69D94"
                BuildableName = "PDF_OneTests.xctest"
                BlueprintName = "PDF_OneTests"
+               ReferencedContainer = "container:PDF_One.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B1B4B0B7E39134373B8857D5"
+               BuildableName = "PDF_OneUITests.xctest"
+               BlueprintName = "PDF_OneUITests"
                ReferencedContainer = "container:PDF_One.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -141,17 +141,32 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
     testTargetHost: PDF_One
 
+  PDF_OneUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: UITests
+    dependencies:
+      - target: PDF_One
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pdfone.PDFOneUITests
+        GENERATE_INFOPLIST_FILE: true
+
 schemes:
   PDF_One:
     build:
       targets:
         PDF_One: all
         PDF_OneTests: [test]
+        PDF_OneUITests: [test]
     test:
       config: Debug
       storeKitConfiguration: Subscriptions.storekit
       targets:
         - PDF_OneTests
+        - PDF_OneUITests
     run:
       config: Debug
       storeKitConfiguration: Subscriptions.storekit

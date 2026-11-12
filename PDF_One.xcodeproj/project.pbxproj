@@ -111,12 +111,20 @@
 		F2F4C951ECFD944EA0B0DDDA /* ModernSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3CDF9D58332B1D3ECD8B5B /* ModernSheet.swift */; };
 		F757E67C90D1AB8AB10B89E1 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE602D706DF5CA221E5A9770 /* SignInView.swift */; };
 		FA76F532A805414202B3F4D6 /* ToolItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361C905ABAC9A122EF16055 /* ToolItem.swift */; };
+		FB42919EB3A4C67D5A166B04 /* ScreenshotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 675124FB8D574418489C792E /* ScreenshotUITests.swift */; };
 		FC13BA8CB0C9BC14BC8D7D25 /* LayoutConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02629390A324E193BE50CEB6 /* LayoutConstants.swift */; };
 		FC221D64081B810F1023F434 /* ImageToPDFListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE793FA260C0690AA7DE8ED7 /* ImageToPDFListView.swift */; };
 		FC8ED1CCF498D6447B726BD4 /* SignaturePlacementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248BA37710658E583CE0413D /* SignaturePlacementView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		20AD1709C6546DCCB99E0465 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 14202D1E94E79774B3638AF8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D4370F82743BC9DE071E7411;
+			remoteInfo = PDF_One;
+		};
 		497D3ECECEDC1942221660AD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 14202D1E94E79774B3638AF8 /* Project object */;
@@ -173,10 +181,12 @@
 		6348508734B87F638742F339 /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 		647926F3F6899578519D5971 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		671019A58993D3CEC9292C19 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		675124FB8D574418489C792E /* ScreenshotUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotUITests.swift; sourceTree = "<group>"; };
 		69658EDC67478459C6EE4166 /* OOXMLRelationships.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OOXMLRelationships.swift; sourceTree = "<group>"; };
 		6AFBD139AF688EDDE85AAEBB /* OOXMLZipWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OOXMLZipWriter.swift; sourceTree = "<group>"; };
 		6DC43BD34B8165943A0EE371 /* PageEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageEditView.swift; sourceTree = "<group>"; };
 		711E7FFA1E12A1F4FC9F4764 /* PDF_OneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDF_OneApp.swift; sourceTree = "<group>"; };
+		79D6DA3364BDEB344019A99B /* PDF_OneUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PDF_OneUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C4F167C9BE1081D722C6A19 /* SavedFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedFileStore.swift; sourceTree = "<group>"; };
 		7DE435C07202C6AE03A52A97 /* PDFPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPreviewView.swift; sourceTree = "<group>"; };
 		7EBCA6D7E0AF26F463AEE7B9 /* SplitPDFView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitPDFView.swift; sourceTree = "<group>"; };
@@ -374,12 +384,21 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		66D0555F021F66429D2FFD7E /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				675124FB8D574418489C792E /* ScreenshotUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
 		6EA92B838907E6597E7E49F8 = {
 			isa = PBXGroup;
 			children = (
 				891A694380F51FA2D54E4686 /* Subscriptions.storekit */,
 				01CE8E05D54A7D390FC2DDD9 /* Sources */,
 				F5A524C6DE74DDB377CB31C5 /* Tests */,
+				66D0555F021F66429D2FFD7E /* UITests */,
 				EF78C59F125FD72411B63370 /* Frameworks */,
 				DD53EEF348D126A44D5365AA /* Products */,
 			);
@@ -434,6 +453,7 @@
 			children = (
 				A4E1706C3EC105914257DDBA /* PDF_One.app */,
 				1CA9B5B19F11D47E06ACE5B6 /* PDF_OneTests.xctest */,
+				79D6DA3364BDEB344019A99B /* PDF_OneUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -484,6 +504,24 @@
 			productReference = 1CA9B5B19F11D47E06ACE5B6 /* PDF_OneTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		B1B4B0B7E39134373B8857D5 /* PDF_OneUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1089E70F2C0AFF5BC4BC822E /* Build configuration list for PBXNativeTarget "PDF_OneUITests" */;
+			buildPhases = (
+				261EDFCDD39AFF6A950B8235 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2C92AAB0DB2809B657BA20E1 /* PBXTargetDependency */,
+			);
+			name = PDF_OneUITests;
+			packageProductDependencies = (
+			);
+			productName = PDF_OneUITests;
+			productReference = 79D6DA3364BDEB344019A99B /* PDF_OneUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		D4370F82743BC9DE071E7411 /* PDF_One */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0055CFFD92DC8F8410DCC721 /* Build configuration list for PBXNativeTarget "PDF_One" */;
@@ -513,6 +551,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					B1B4B0B7E39134373B8857D5 = {
+						TestTargetID = D4370F82743BC9DE071E7411;
+					};
 				};
 			};
 			buildConfigurationList = C6F4186D70DA8A08ACAF2F09 /* Build configuration list for PBXProject "PDF_One" */;
@@ -540,6 +581,7 @@
 			targets = (
 				D4370F82743BC9DE071E7411 /* PDF_One */,
 				59D83DD601E51A4E72A69D94 /* PDF_OneTests */,
+				B1B4B0B7E39134373B8857D5 /* PDF_OneUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -666,6 +708,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		261EDFCDD39AFF6A950B8235 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FB42919EB3A4C67D5A166B04 /* ScreenshotUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2B84D2F5C52D5AFEEA94B6CB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -684,6 +734,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2C92AAB0DB2809B657BA20E1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D4370F82743BC9DE071E7411 /* PDF_One */;
+			targetProxy = 20AD1709C6546DCCB99E0465 /* PBXContainerItemProxy */;
+		};
 		EF37B10A866EA2D9BF798E61 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D4370F82743BC9DE071E7411 /* PDF_One */;
@@ -747,6 +802,24 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDF_One.app/PDF_One";
 			};
 			name = Debug;
+		};
+		6D70D3C82C69F25183B8E9BD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pdfone.PDFOneUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PDF_One;
+			};
+			name = Release;
 		};
 		7FAA085BB18D900B6392D246 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -889,6 +962,24 @@
 			};
 			name = Release;
 		};
+		C58516E5078283F96FE96FD9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pdfone.PDFOneUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PDF_One;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -897,6 +988,15 @@
 			buildConfigurations = (
 				0ECDF50C7356805B05914B61 /* Debug */,
 				35AE14AF1FDC07074EF02A41 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1089E70F2C0AFF5BC4BC822E /* Build configuration list for PBXNativeTarget "PDF_OneUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C58516E5078283F96FE96FD9 /* Debug */,
+				6D70D3C82C69F25183B8E9BD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
