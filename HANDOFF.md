@@ -1,7 +1,7 @@
 # PDF One — 開発状況引き継ぎメモ（2026-08-16時点）
 
 ## プロジェクトの場所
-- **実体パス**: `~/Desktop/PDF_One`（2026-08-11に`MyFirstApp`からリネーム。旧名時代のバックアップが`~/Desktop/MyFirstApp_backup`に残っている・非gitフォルダ）
+- **実体パス**: `~/Projects/PDF_One`（2026-08-11に`MyFirstApp`からリネーム。旧名時代のバックアップが`~/Desktop/MyFirstApp_backup`に残っている・非gitフォルダ）
 - **表示名（CFBundleDisplayName）**: PDF One
 - **Xcodeプロジェクト/ターゲット/スキーム名/Swiftモジュール名**: `PDF_One`（表示名と統一。Swiftモジュール名はスペース不可のためアンダースコア表記）
 - 個人開発のiOSアプリ。運営はオーナー1名。
